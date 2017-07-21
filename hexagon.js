@@ -1,8 +1,9 @@
-var Hexagon = function (ctx, x, y, size, available) {
+var Hexagon = function (ctx, x, y, size, available, color) {
   this.x = x; //the x-cord of the top left corner of the hexagon
   this.y = y; //the y-cord of the top left corner of the hexagon
   this.size = size; // the distance between the 2 top corners of the rectangle
-  this.available = available; //determines the color of the cell; changed when cell is clicked
+  this.available = available; //determines the status of the cell; changed when cell is clicked
+  this.color = color;
   this.visible = true; //determines if the cell should be drawn
   this.ctx = ctx;
 };
@@ -27,7 +28,7 @@ Hexagon.prototype.draw = function () {
     if (this.available) {
       this.ctx.fillStyle = 'black';
     } else {
-      this.ctx.fillStyle = 'yellow';
+      this.ctx.fillStyle = this.color;
     }
   } else {
     this.ctx.fillStyle = 'white';

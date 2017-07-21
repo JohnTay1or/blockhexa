@@ -13,7 +13,7 @@ ctx3 = c3.getContext("2d");
 gridSize = 10;
 size = 20;
 leftMargin = 20;
-topMargin = 40;
+topMargin = 20;
 
 board = new Board(ctx1, 'board', gridSize, size, leftMargin, topMargin);
 

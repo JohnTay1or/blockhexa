@@ -9,9 +9,9 @@ var Board = function (ctx, type, gridSize, size, leftMargin, topMargin) {
   for (var j = 0; j < gridSize; j++) {
     for (var i = 0; i < gridSize; i++) {
       if (i%2 === 0) {
-        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+size*(1.7*j), size, false));
+        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+size*(1.7*j), size, false, 'yellow'));
       } else {
-        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+(1.7*j+0.85)*size, size, false));
+        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+(1.7*j+0.85)*size, size, false, 'yellow'));
       };
       this.hexagons[j*gridSize+i].draw()
     };

@@ -14,7 +14,7 @@ ctx3 = c3.getContext("2d");
 gridSize = 10;
 size = 20;
 leftMargin = 20;
-topMargin = 40;
+topMargin = 20;
 
 board = new Board(ctx1, 'board', gridSize, size, leftMargin, topMargin);
 
@@ -73,9 +73,9 @@ var Board = function (ctx, type, gridSize, size, leftMargin, topMargin) {
   for (var j = 0; j < gridSize; j++) {
     for (var i = 0; i < gridSize; i++) {
       if (i%2 === 0) {
-        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+size*(1.7*j), size, false));
+        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+size*(1.7*j), size, false, 'yellow'));
       } else {
-        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+(1.7*j+0.85)*size, size, false));
+        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+(1.7*j+0.85)*size, size, false, 'yellow'));
       };
       this.hexagons[j*gridSize+i].draw()
     };
@@ -112,11 +112,12 @@ Board.prototype.analyze = function () {
 module.exports = Board;
 
 },{"./hexagon.js":3,"./piece.js":4}],3:[function(require,module,exports){
-var Hexagon = function (ctx, x, y, size, available) {
+var Hexagon = function (ctx, x, y, size, available, color) {
   this.x = x; //the x-cord of the top left corner of the hexagon
   this.y = y; //the y-cord of the top left corner of the hexagon
   this.size = size; // the distance between the 2 top corners of the rectangle
-  this.available = available; //determines the color of the cell; changed when cell is clicked
+  this.available = available; //determines the status of the cell; changed when cell is clicked
+  this.color = color;
   this.visible = true; //determines if the cell should be drawn
   this.ctx = ctx;
 };
@@ -141,7 +142,7 @@ Hexagon.prototype.draw = function () {
     if (this.available) {
       this.ctx.fillStyle = 'black';
     } else {
-      this.ctx.fillStyle = 'yellow';
+      this.ctx.fillStyle = this.color;
     }
   } else {
     this.ctx.fillStyle = 'white';
@@ -157,12 +158,31 @@ var Hexagon = require('./hexagon.js')
 
 var Piece = function (hexagons, analysis) {
   this.hexagons = [];
-  for (i = analysis.minRow-1; i < analysis.maxRow; i++) {
-    for (j = analysis.minCol-1; j < analysis.maxCol; j++) {
-      console.log(hexagons[i*gridSize+j].available);
-      this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*i*size, topMargin+size*(1.7*j), size, this.available));
-      this.hexagons[0].draw()
+  var pieceColCount = analysis.maxCol-analysis.minCol+1;
+  //console.log(pr)
+  for (j = analysis.minRow-1; j < analysis.maxRow; j++) {
+    for (i = analysis.minCol-1; i < analysis.maxCol; i++) {
+      //console.log('j ' + j);
+      //console.log('i ' + i);
+      //console.log('here')
+      //console.log(hexagons[i*gridSize+j].visible);
+      if (i%2 === 0) {
+        this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*(i-analysis.minCol+1)*size, topMargin+size*(1.7*(j-analysis.minRow+1)), size, null, 'red'));
+      } else {
+        this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*(i-analysis.minCol+1)*size, topMargin+size*(1.7*(j-analysis.minRow+1)+0.85), size, null, 'red'));
+      };
+
+      this.hexagons[(j-analysis.minRow+1)*pieceColCount+i-analysis.minCol+1].visible = hexagons[j*gridSize+i].visible;
+      //console.log(hexagons[(j+analysis.minRow-1)*gridSize+i+analysis.minCol-1].visible);
+      //if (this.hexagons[j*pieceColCount+i].visible) {
+        //console.log('hi')
+        //this.hexagons[j*pieceColCount+i].draw()
+      //}
+      this.hexagons.forEach(function(hex) {
+        hex.draw();
+      })
     }
+
   }
   //console.log(hexagons);
   //console.log(analysis);
