@@ -8,14 +8,19 @@ var ctx1 = c1.getContext("2d");
 var c2 = document.getElementById("pieceGenerator");
 var ctx2 = c2.getContext("2d");
 
+var c3 = document.getElementById("pieces");
+ctx3 = c3.getContext("2d");
+
 gridSize = 10;
 size = 20;
 leftMargin = 20;
 topMargin = 40;
 
-board = new Board(ctx1, gridSize, size, leftMargin, topMargin);
+board = new Board(ctx1, 'board', gridSize, size, leftMargin, topMargin);
 
-pieceGenerator = new Board(ctx2, gridSize, size, leftMargin, topMargin);
+pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
+
+pieces = [];
 
 c1.addEventListener("mousedown", setBoard, false);
 c2.addEventListener("mousedown", setPiece, false);
@@ -58,52 +63,61 @@ function getMousePos(canvas, evt) {
 
 },{"./board.js":2,"./hexagon.js":3}],2:[function(require,module,exports){
 var Hexagon = require('./hexagon.js')
+var Piece = require('./piece.js')
 
-module.exports = function (ctx, gridSize, size, leftMargin, topMargin) {
+var Board = function (ctx, type, gridSize, size, leftMargin, topMargin) {
+  this.type = type;
   this.hexagons = [];
+  this.pieces = [];
   this.locked = false;
   for (var j = 0; j < gridSize; j++) {
     for (var i = 0; i < gridSize; i++) {
       if (i%2 === 0) {
-        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+size*(1.7*j), size));
+        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+size*(1.7*j), size, false));
       } else {
-        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+(1.7*j+0.85)*size, size));
-      }
+        this.hexagons.push(new Hexagon(ctx, leftMargin+1.5*i*size, topMargin+(1.7*j+0.85)*size, size, false));
+      };
       this.hexagons[j*gridSize+i].draw()
-    }
+    };
   };
-  this.lock = function () {
-  // the objective of this function is to trim all the unnecessary cells from around the container
-    this.hexagons.forEach(function(e) {
-    //console.log(e)
-      if (e.available === false) {
-        e.visible = false;
-        e.draw();
-      }
-    });
-    this.locked = true;
-    //console.log('Hi');
-    console.log(this.analyze());
-  };
-  this.analyze = function () {
-    var count = this.hexagons.reduce((count, hex) => count + (hex.visible === true), 0);
-    var min = this.hexagons.reduce((min, hex, i) => Math.min(hex.visible ? i : gridSize*gridSize, min), gridSize*gridSize);
-    var max = this.hexagons.reduce((max, hex, i) => Math.max(hex.visible ? i : 0, max), 0);
-    minRow = parseInt(min/gridSize)+1;
-    maxRow = parseInt(max/gridSize)+1;
-    var minCol = this.hexagons.reduce((min, hex, i) => Math.min(hex.visible ? i%gridSize : gridSize, min), gridSize)+1;
-    var maxCol = this.hexagons.reduce((max, hex, i) => Math.max(hex.visible ? i%gridSize : 0, max), 0)+1;
-    return {count: count, minRow: minRow, maxRow: maxRow, minCol: minCol, maxCol: maxCol};
-  };
-}
+};
 
-},{"./hexagon.js":3}],3:[function(require,module,exports){
-var Hexagon = function (ctx, x, y, size) {
+Board.prototype.lock = function () {
+  // the objective of this function is to trim all the unnecessary cells from around the container
+  this.hexagons.forEach(function(e) {
+  //console.log(e)
+    if (e.available === false) {
+      e.visible = false;
+      e.draw();
+    }
+  });
+  this.locked = true;
+  if (this.type === 'piece') {
+    pieces.push(new Piece(this.hexagons, this.analyze()));
+  }
+
+};
+
+Board.prototype.analyze = function () {
+  var count = this.hexagons.reduce((count, hex) => count + (hex.visible === true), 0);
+  var min = this.hexagons.reduce((min, hex, i) => Math.min(hex.visible ? i : gridSize*gridSize, min), gridSize*gridSize);
+  var max = this.hexagons.reduce((max, hex, i) => Math.max(hex.visible ? i : 0, max), 0);
+  minRow = parseInt(min/gridSize)+1;
+  maxRow = parseInt(max/gridSize)+1;
+  var minCol = this.hexagons.reduce((min, hex, i) => Math.min(hex.visible ? i%gridSize : gridSize, min), gridSize)+1;
+  var maxCol = this.hexagons.reduce((max, hex, i) => Math.max(hex.visible ? i%gridSize : 0, max), 0)+1;
+  return {count: count, minRow: minRow, maxRow: maxRow, minCol: minCol, maxCol: maxCol};
+};
+
+module.exports = Board;
+
+},{"./hexagon.js":3,"./piece.js":4}],3:[function(require,module,exports){
+var Hexagon = function (ctx, x, y, size, available) {
   this.x = x; //the x-cord of the top left corner of the hexagon
   this.y = y; //the y-cord of the top left corner of the hexagon
   this.size = size; // the distance between the 2 top corners of the rectangle
-  this.available = false; //determines the color of the cell; changed when cell is clicked
-  this.visible = true; //determines of the cell should be drawn
+  this.available = available; //determines the color of the cell; changed when cell is clicked
+  this.visible = true; //determines if the cell should be drawn
   this.ctx = ctx;
 };
 
@@ -138,4 +152,25 @@ Hexagon.prototype.draw = function () {
 
 module.exports = Hexagon;
 
-},{}]},{},[1]);
+},{}],4:[function(require,module,exports){
+var Hexagon = require('./hexagon.js')
+
+var Piece = function (hexagons, analysis) {
+  this.hexagons = [];
+  for (i = analysis.minRow-1; i < analysis.maxRow; i++) {
+    for (j = analysis.minCol-1; j < analysis.maxCol; j++) {
+      console.log(hexagons[i*gridSize+j].available);
+      this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*i*size, topMargin+size*(1.7*j), size, this.available));
+      this.hexagons[0].draw()
+    }
+  }
+  //console.log(hexagons);
+  //console.log(analysis);
+};
+
+Piece.prototype.draw = function () {
+};
+
+module.exports = Piece;
+
+},{"./hexagon.js":3}]},{},[1]);

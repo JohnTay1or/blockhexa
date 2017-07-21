@@ -7,14 +7,19 @@ var ctx1 = c1.getContext("2d");
 var c2 = document.getElementById("pieceGenerator");
 var ctx2 = c2.getContext("2d");
 
+var c3 = document.getElementById("pieces");
+ctx3 = c3.getContext("2d");
+
 gridSize = 10;
 size = 20;
 leftMargin = 20;
 topMargin = 40;
 
-board = new Board(ctx1, gridSize, size, leftMargin, topMargin);
+board = new Board(ctx1, 'board', gridSize, size, leftMargin, topMargin);
 
-pieceGenerator = new Board(ctx2, gridSize, size, leftMargin, topMargin);
+pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
+
+pieces = [];
 
 c1.addEventListener("mousedown", setBoard, false);
 c2.addEventListener("mousedown", setPiece, false);

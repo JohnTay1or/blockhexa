@@ -1,9 +1,9 @@
-var Hexagon = function (ctx, x, y, size) {
+var Hexagon = function (ctx, x, y, size, available) {
   this.x = x; //the x-cord of the top left corner of the hexagon
   this.y = y; //the y-cord of the top left corner of the hexagon
   this.size = size; // the distance between the 2 top corners of the rectangle
-  this.available = false; //determines the color of the cell; changed when cell is clicked
-  this.visible = true; //determines of the cell should be drawn
+  this.available = available; //determines the color of the cell; changed when cell is clicked
+  this.visible = true; //determines if the cell should be drawn
   this.ctx = ctx;
 };
 
