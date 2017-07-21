@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  </head>
+  <body>
+    <p>Block Hexa</p>
+    <div id="board">
+    	<canvas id="myCanvas" width="400" height="400" style="border:1px solid #d3d3d3;">
+    		Your browser does not support the HTML5 canvas tag.
+  	   </canvas>
+    	<canvas id="pieceGenerator" width="400" height="400" style="border:1px solid #d3d3d3;">
+      		Your browser does not support the HTML5 canvas tag.
+    	</canvas>
+      <canvas id="pieces" width="800" height="200" style="border:1px solid #d3d3d3;">
+      		Your browser does not support the HTML5 canvas tag.
+    	</canvas>
+  </div>
+
+  <!--<label for="boardSize">Board Size</label>
+  <input type="number" id="boardSize" name="boardSize" min="1" max="8" value=7>-->
+	<input id="lockBoard" type="button" value="Board Complete" onclick="lockBoard();" />
+	<input id="createPiece" type="button" value="Piece Complete" onclick="createPiece();" />
+
+  <script src="blockHexa.js"></script>
+
+</body>
