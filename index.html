@@ -6,22 +6,23 @@
   <body>
     <p>Block Hexa</p>
     <div id="board">
-    	<canvas id="myCanvas" width="400" height="400" style="border:1px solid #d3d3d3;">
+    	<canvas id="myCanvas" width="800" height="500" style="border:1px solid #d3d3d3;">
     		Your browser does not support the HTML5 canvas tag.
   	   </canvas>
-    	<canvas id="pieceGenerator" width="400" height="400" style="border:1px solid #d3d3d3;">
+    	<!--<canvas id="pieceGenerator" width="400" height="400" style="border:1px solid #d3d3d3;">
       		Your browser does not support the HTML5 canvas tag.
     	</canvas>
       <canvas id="pieces" width="800" height="200" style="border:1px solid #d3d3d3;">
       		Your browser does not support the HTML5 canvas tag.
-    	</canvas>
+    	</canvas>-->
   </div>
 
   <!--<label for="boardSize">Board Size</label>
   <input type="number" id="boardSize" name="boardSize" min="1" max="8" value=7>-->
 	<!--<input id="lockBoard" type="button" value="Board Complete" onclick="lockBoard();" />-->
-  <input id="lockBoard" type="button" value="Board Complete" onclick="board.lock();" />
-	<input id="createPiece" type="button" value="Piece Complete" onclick="pieceGenerator.lock();" />
+  <input id="completeBoard" type="button" value="Board Complete" onclick="board.complete();" />
+	<!--<input id="createPiece" type="button" value="Piece Complete" onclick="pieceGenerator.lock(false);" />
+  <input id="createAllPiece" type="button" value="All Pieces Complete" onclick="pieceGenerator.lock(true);" />-->
 
   <script src="index.js"></script>
 

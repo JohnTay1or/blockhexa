@@ -1,44 +1,53 @@
 var Hexagon = require('./hexagon.js')
-var Board = require('./board.js')
+var HexGrid = require('./hexgrid.js')
 
-var c1 = document.getElementById("myCanvas");
-var ctx1 = c1.getContext("2d");
+var canvas = document.getElementById("myCanvas");
+var context = canvas.getContext("2d");
 
-var c2 = document.getElementById("pieceGenerator");
+/*var c2 = document.getElementById("pieceGenerator");
 var ctx2 = c2.getContext("2d");
 
 var c3 = document.getElementById("pieces");
-ctx3 = c3.getContext("2d");
+ctx3 = c3.getContext("2d");*/
 
-gridSize = 10;
-size = 20;
-leftMargin = 20;
-topMargin = 20;
+var boardRows = 12;
+var boardCols = 6;
+var size = 20;
+var leftMargin = 40;
+var topMargin = 40;
 
-board = new Board(ctx1, 'board', gridSize, size, leftMargin, topMargin);
+/*var hex1 = new Hexagon (context, 0, 0, true, null, null, 'yellow');
+var hex2 = new Hexagon (context, 1, 1, true, null, null, 'green');
+var hex3 = new Hexagon (context, 2, 0, true, null, null, 'red');
+var hex4 = new Hexagon (context, 3, 1, true, null, null, 'green');
+hex1.draw(80, 40, size);
+hex2.draw(80, 40, size);
+hex3.draw(80, 40, size);
+hex4.draw(80, 40, size);*/
 
-pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
+board = new HexGrid(context, 'board', boardRows, boardCols, size, leftMargin, topMargin);
 
-pieces = [];
+/*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
 
-c1.addEventListener("mousedown", setBoard, false);
-c2.addEventListener("mousedown", setPiece, false);
+pieces = [];*/
 
-function setBoard(e) {
-  var pos = getMousePos(c1, e);
-  if (!board.locked) {
-    var col = parseInt((pos.x-leftMargin+size)/(1.5*size)+0.5);
-    if (col % 2 === 1) {
-      var row = parseInt((pos.y-topMargin+0.85*size)/(1.7*size)+0.5);
-    } else {
-      var row = parseInt((pos.y-topMargin)/(1.7*size)+0.5);
-    }
-    board.hexagons[(row-1)*gridSize+col-1].available = !board.hexagons[(row-1)*gridSize+col-1].available;
-    board.hexagons[(row-1)*gridSize+col-1].draw()
+canvas.addEventListener("mousedown", getMousePos, false);
+/*canvas.addEventListener("mousedown", setBoard, false);
+c2.addEventListener("mousedown", setPiece, false);*/
+
+function getMousePos(event) {
+  var pos = getMousePosOnCanvas(canvas, event);
+  //console.log(pos);
+  if (board.includesPos(pos)) {
+    //console.log('Am I here');
+    board.clickHandler(pos)
+    //console.log('OnBoard');
+  } else {
+    console.log('OffBoard');
   }
 }
 
-function setPiece(e) {
+/*function setPiece(e) {
   var pos = getMousePos(c2, e);
   if (!pieceGenerator.locked) {
     var col = parseInt((pos.x-leftMargin+size)/(1.5*size)+0.5);
@@ -50,12 +59,14 @@ function setPiece(e) {
     pieceGenerator.hexagons[(row-1)*gridSize+col-1].available = !pieceGenerator.hexagons[(row-1)*gridSize+col-1].available;
     pieceGenerator.hexagons[(row-1)*gridSize+col-1].draw()
   }
-}
+}*/
 
-function getMousePos(canvas, evt) {
+function getMousePosOnCanvas(canvas, event) {
+  //console.log(e.clientX);
+  //console.log(e.clientY);
   var rect = canvas.getBoundingClientRect();
   return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top
   };
 };
