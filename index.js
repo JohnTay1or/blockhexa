@@ -11,8 +11,8 @@ var ctx2 = c2.getContext("2d");
 var c3 = document.getElementById("pieces");
 ctx3 = c3.getContext("2d");*/
 
-var boardRows = 12;
-var boardCols = 6;
+var gridRows = 12;
+var gridCols = 6;
 var size = 20;
 var leftMargin = 40;
 var topMargin = 40;
@@ -26,8 +26,11 @@ hex2.draw(80, 40, size);
 hex3.draw(80, 40, size);
 hex4.draw(80, 40, size);*/
 
-board = new HexGrid(context, 'board', boardRows, boardCols, size, leftMargin, topMargin);
+board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topMargin);
 
+pieceGen = new HexGrid(context, 'pieceGen', gridRows, gridCols, size, 2*leftMargin + 1.5*gridCols*size, topMargin);
+
+pieces = [];
 /*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
 
 pieces = [];*/
@@ -40,11 +43,11 @@ function getMousePos(event) {
   var pos = getMousePosOnCanvas(canvas, event);
   //console.log(pos);
   if (board.includesPos(pos)) {
-    //console.log('Am I here');
-    board.clickHandler(pos)
-    //console.log('OnBoard');
+    board.clickHandler(pos);
+  } else if (pieceGen.includesPos(pos)) {
+      pieceGen.clickHandler(pos);
   } else {
-    console.log('OffBoard');
+      console.log('OffBoard');
   }
 }
 
@@ -121,13 +124,15 @@ module.exports = Hexagon;
 
 },{}],3:[function(require,module,exports){
 var Hexagon = require('./hexagon.js');
-//var Piece = require('./piece.js')
+var Piece = require('./piece.js')
 
 var HexGrid = function (context, type, gridRows, gridCols, size, leftMargin, topMargin) {
   this.context = context;
   this.type = type;
   this.gridRows = gridRows;
   this.gridCols = gridCols;
+  this.origGridRows = gridRows;
+  this.origGridCols = gridCols;
   this.size = size;
   this.leftMargin = leftMargin;
   this.topMargin = topMargin;
@@ -139,7 +144,10 @@ var HexGrid = function (context, type, gridRows, gridCols, size, leftMargin, top
     minY: topMargin-0.85*size-2,
     maxX: leftMargin+gridCols*1.5*size-0.5*size+2,
     maxY: topMargin+gridRows*0.85*size+2};
-  var visible = false;
+  this.hexagons = this.init();
+  this.draw()
+  /*var visible = false;
+  var dummy = false;
   for (var i = 0; i < gridRows; i++) {
     for (var j = 0; j < gridCols; j++) {
       if ( (i+j)%2 === 0 ) {
@@ -150,54 +158,54 @@ var HexGrid = function (context, type, gridRows, gridCols, size, leftMargin, top
         dummy = true;
       }
       this.hexagons.push(new Hexagon(context, i, j, visible, false, null, 'yellow', dummy));
-      if ( visible ) {
+      //if ( visible ) {
         this.hexagons[i*gridCols+j].draw(leftMargin, topMargin, size);
-      }
+      //}
+    };
+  };*/
+};
+
+HexGrid.prototype.init = function () {
+  var initHex = [];
+  var visible = false;
+  var dummy = false;
+  for (var i = 0; i < this.origGridRows; i++) {
+    for (var j = 0; j < this.origGridCols; j++) {
+      if ( (i+j)%2 === 0 ) {
+        visible = true;
+        dummy = false;
+      } else {
+        visible = false;
+        dummy = true;
+      };
+      initHex.push(new Hexagon(this.context, i, j, visible, false, null, 'yellow', dummy));
     };
   };
+  return initHex;
 };
 
 HexGrid.prototype.complete = function (done) {
-  var self = this;
+  //console.log(done)
   // the objective of this function is to trim all the unnecessary cells from around the container
-  /*this.hexagons.forEach(function(hex) {
-    if (hex.used === false) {
-      //console.log('Am I here');
-      hex.visible = false;
-      //console.log(this.leftMargin);
-      hex.draw(self.leftMargin, self.topMargin, self.size);
-    }
-  });*/
-  this.completed = true;
-  //console.log(this.analyze());
+  var self = this;
   this.minimize();
-  /*if (this.type === 'piece') {
-    //leftMargin += 100;
-    pieces.push(new Piece(this.hexagons, this.analyze()));
-    if (!done) {
-      this.hexagons.forEach(function(e) {
-      //console.log(e)
-        e.available = false;
-        e.visible = true;
-        e.color = 'yellow'
-        e.draw();
-      });
-      this.locked = false;
-    } else {
-      this.hexagons.forEach(function(e) {
-      //console.log(e)
-        e.available = false;
-        e.visible = false;
-        e.draw();
-      });
-      this.locked = true;
-    }
+
+  if (this.type === 'pieceGen') {
+    var analysis = this.analyze();
+    pieces.push(new Piece(this.context, this.hexagons, analysis, this.size));
+    this.hexagons = this.init();
+    this.gridRows = this.origGridRows;
+    this.gridCols = this.origGridCols;
+    this.draw();
   }
-  */
+  if (done && this.type === 'pieceGen') {
+    this.completed = true;
+    this.hexagons = [];
+    this.draw();
+  };
 };
 
 HexGrid.prototype.analyze = function () {
-  var self = this;
   var self = this;
   var count = this.hexagons.reduce((count, hex) => count + (hex.used === true), 0);
   //console.log(self.gridRows);
@@ -216,7 +224,7 @@ HexGrid.prototype.minimize = function () {
   var stats = this.analyze();
   this.gridRows = stats.maxRow - stats.minRow + 1;
   this.gridCols = stats.maxCol - stats.minCol + 1;
-  console.log(stats);
+  //console.log(stats);
   this.minHexagons = [];
   this.hexagons.forEach(function(hex) {
     //console.log(stats.minRow);
@@ -276,5 +284,81 @@ HexGrid.prototype.clickHandler = function (pos) {
 }
 
 module.exports = HexGrid;
+
+},{"./hexagon.js":2,"./piece.js":4}],4:[function(require,module,exports){
+var Hexagon = require('./hexagon.js')
+
+var Piece = function (context, hexagons, analysis, size) {
+  //console.log(board);
+  this.context = context;
+  this.topMargin = board.topMargin + board.boundingBox.maxY;
+  if (pieces.length === 0) {
+    this.leftMargin = board.leftMargin;
+  } else {
+    //console.log(pieces[pieces.length-1].leftMargin);
+    //console.log(pieces[pieces.length-1].boundingBox.maxX);
+    //console.log(pieces.length);
+    this.leftMargin = board.leftMargin + pieces[pieces.length-1].boundingBox.maxX;
+  }
+  this.hexagons = hexagons;
+  this.analysis = analysis;
+  this.gridCols = analysis.maxCol - analysis.minCol + 1;
+  //console.log(this.gridCols);
+  this.gridRows = analysis.maxRow - analysis.minRow + 1;
+  //console.log(this.gridRows);
+  this.size = size;
+  this.boundingBox = {
+    minX: this.leftMargin-size-2,
+    minY: this.topMargin-0.85*size-2,
+    maxX: this.leftMargin+this.gridCols*1.5*size-0.5*size+2,
+    maxY: this.topMargin+this.gridRows*0.85*size+2
+  };
+  this.draw();
+  //var pieceColCount = analysis.maxCol-analysis.minCol+1;
+  //console.log(pr)
+  /*for (j = analysis.minRow-1; j < analysis.maxRow; j++) {
+    for (i = analysis.minCol-1; i < analysis.maxCol; i++) {
+      //console.log('j ' + j);
+      //console.log('i ' + i);
+      //console.log('here')
+      //console.log(hexagons[i*gridSize+j].visible);
+      if (i%2 === 0) {
+        this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*(i-analysis.minCol+1)*size, topMargin+size*(1.7*(j-analysis.minRow+1)), size, null, 'red'));
+      } else {
+        this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*(i-analysis.minCol+1)*size, topMargin+size*(1.7*(j-analysis.minRow+1)+0.85), size, null, 'red'));
+      };
+
+      this.hexagons[(j-analysis.minRow+1)*pieceColCount+i-analysis.minCol+1].visible = hexagons[j*gridSize+i].visible;
+      //console.log(hexagons[(j+analysis.minRow-1)*gridSize+i+analysis.minCol-1].visible);
+      //if (this.hexagons[j*pieceColCount+i].visible) {
+        //console.log('hi')
+        //this.hexagons[j*pieceColCount+i].draw()
+      //}
+      this.hexagons.forEach(function(hex) {
+        hex.draw();
+      })
+    }
+
+  }
+  //console.log(hexagons);
+  //console.log(analysis);
+  */
+};
+
+Piece.prototype.draw = function () {
+  var self = this;
+  this.context.fillStyle = 'white';
+  this.context.fillRect(this.boundingBox.minX, this.boundingBox.minY,
+                        this.boundingBox.maxX-this.boundingBox.minX,
+                        this.boundingBox.maxY-this.boundingBox.minY)
+  this.hexagons.forEach(function (hex) {
+    //console.log(self.leftMargin);
+    //console.log(self.topMargin);
+    //console.log(self.size);
+    hex.draw(self.leftMargin, self.topMargin, self.size)
+  })
+};
+
+module.exports = Piece;
 
 },{"./hexagon.js":2}]},{},[1]);

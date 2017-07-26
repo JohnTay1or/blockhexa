@@ -20,9 +20,9 @@
   <!--<label for="boardSize">Board Size</label>
   <input type="number" id="boardSize" name="boardSize" min="1" max="8" value=7>-->
 	<!--<input id="lockBoard" type="button" value="Board Complete" onclick="lockBoard();" />-->
-  <input id="completeBoard" type="button" value="Board Complete" onclick="board.complete();" />
-	<!--<input id="createPiece" type="button" value="Piece Complete" onclick="pieceGenerator.lock(false);" />
-  <input id="createAllPiece" type="button" value="All Pieces Complete" onclick="pieceGenerator.lock(true);" />-->
+  <input id="completeBoard" type="button" value="Board Complete" onclick="board.complete(true);" />
+	<input id="createPiece" type="button" value="Piece Complete" onclick="pieceGen.complete(false);" />
+  <input id="createAllPiece" type="button" value="All Pieces Complete" onclick="pieceGen.complete(true);" />
 
   <script src="index.js"></script>
 

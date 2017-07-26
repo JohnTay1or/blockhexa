@@ -10,8 +10,8 @@ var ctx2 = c2.getContext("2d");
 var c3 = document.getElementById("pieces");
 ctx3 = c3.getContext("2d");*/
 
-var boardRows = 12;
-var boardCols = 6;
+var gridRows = 12;
+var gridCols = 6;
 var size = 20;
 var leftMargin = 40;
 var topMargin = 40;
@@ -25,8 +25,11 @@ hex2.draw(80, 40, size);
 hex3.draw(80, 40, size);
 hex4.draw(80, 40, size);*/
 
-board = new HexGrid(context, 'board', boardRows, boardCols, size, leftMargin, topMargin);
+board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topMargin);
 
+pieceGen = new HexGrid(context, 'pieceGen', gridRows, gridCols, size, 2*leftMargin + 1.5*gridCols*size, topMargin);
+
+pieces = [];
 /*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
 
 pieces = [];*/
@@ -39,11 +42,11 @@ function getMousePos(event) {
   var pos = getMousePosOnCanvas(canvas, event);
   //console.log(pos);
   if (board.includesPos(pos)) {
-    //console.log('Am I here');
-    board.clickHandler(pos)
-    //console.log('OnBoard');
+    board.clickHandler(pos);
+  } else if (pieceGen.includesPos(pos)) {
+      pieceGen.clickHandler(pos);
   } else {
-    console.log('OffBoard');
+      console.log('OffBoard');
   }
 }
 
