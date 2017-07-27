@@ -1,6 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var Hexagon = require('./hexagon.js')
 var HexGrid = require('./hexgrid.js')
+var ColorPicker = require('./colorpicker.js')
 
 var canvas = document.getElementById("myCanvas");
 var context = canvas.getContext("2d");
@@ -11,8 +12,8 @@ var ctx2 = c2.getContext("2d");
 var c3 = document.getElementById("pieces");
 ctx3 = c3.getContext("2d");*/
 
-var gridRows = 12;
-var gridCols = 6;
+var gridRows = 14;
+var gridCols = 5;
 var size = 20;
 var leftMargin = 40;
 var topMargin = 40;
@@ -30,6 +31,7 @@ board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topM
 
 pieceGen = new HexGrid(context, 'pieceGen', gridRows, gridCols, size, 2*leftMargin + 1.5*gridCols*size, topMargin);
 
+colorPicker = new ColorPicker(context, 3*leftMargin + 2*1.5*gridCols*size, topMargin);
 pieces = [];
 /*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
 
@@ -46,6 +48,8 @@ function getMousePos(event) {
     board.clickHandler(pos);
   } else if (pieceGen.includesPos(pos)) {
       pieceGen.clickHandler(pos);
+  } else if (colorPicker.includesPos(pos)) {
+      colorPicker.clickHandler(pos);
   } else {
       console.log('OffBoard');
   }
@@ -75,7 +79,74 @@ function getMousePosOnCanvas(canvas, event) {
   };
 };
 
-},{"./hexagon.js":2,"./hexgrid.js":3}],2:[function(require,module,exports){
+},{"./colorpicker.js":2,"./hexagon.js":3,"./hexgrid.js":4}],2:[function(require,module,exports){
+var ColorPicker = function (context, leftMargin, topMargin) {
+  var self = this;
+  this.context = context;
+  this.leftMargin = leftMargin;
+  this.topMargin = topMargin;
+  this.colors = [
+    '#FBD15A', //yellow
+    '#F45A92', //pink
+    '#7F56F9', //purple
+    '#B8F75F', //green
+    '#F58836', //orange
+    '#5CD5F6' //blue
+  ];
+  this.boundingBox = {
+    minX: leftMargin,
+    minY: topMargin,
+    maxX: leftMargin+30,
+    maxY: topMargin+this.colors.length*40
+  };
+  this.context.beginPath() //Not sure why this is necessary but it stops the last hexagon having odd shading
+  this.colors.forEach(function(color, i) {
+    self.context.fillStyle = color;
+    self.context.fillRect(self.leftMargin, self.topMargin+i*40, 30, 30);
+  });
+  this.selectedColor = this.colors[0]
+  this.selectedColorIndex = 0;
+  this.context.lineWidth="2";
+  this.context.strokeStyle="black";
+  this.context.rect(self.leftMargin, self.topMargin, 30, 30);
+  this.context.stroke();
+};
+
+ColorPicker.prototype.includesPos = function (pos) {
+  if (pos.x > this.boundingBox.minX &&
+  pos.x < this.boundingBox.maxX &&
+  pos.y > this.boundingBox.minY &&
+  pos.y < this.boundingBox.maxY) {
+    //console.log('In color picker');
+    return true;
+  } else {
+    return false;
+  }
+};
+
+ColorPicker.prototype.clickHandler = function (pos) {
+  this.context.strokeStyle = 'white';
+  this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
+  this.context.stroke();
+  this.context.beginPath();
+  var row = parseInt((pos.y-this.boundingBox.minY)/40);
+  console.log(row);
+  this.selectedColor = this.colors[row];
+  this.selectedColorIndex = row
+  this.context.strokeStyle = 'black';
+  this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
+  this.context.stroke();
+  //console.log(this.selectedColor);
+}
+
+ColorPicker.prototype.hide = function () {
+  this.context.fillStyle = 'white';
+  this.context.fillRect(this.leftMargin-1, this.topMargin-1, 30+2, 40*this.colors.length+2);
+}
+
+module.exports = ColorPicker;
+
+},{}],3:[function(require,module,exports){
 var Hexagon = function (context, row, col, visible, used, available, color, dummy) {
   this.context = context; //the context onto which we will draw the hexagon
   this.row = row; //the row of the haxagon (0 indexed)
@@ -117,12 +188,13 @@ Hexagon.prototype.draw = function (xOffset, yOffset, size) {
       this.context.fillStyle = 'white';
     }
     this.context.fill();
-  }
+    //this.context.stroke();
+  };
 };
 
 module.exports = Hexagon;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var Hexagon = require('./hexagon.js');
 var Piece = require('./piece.js')
 
@@ -202,6 +274,7 @@ HexGrid.prototype.complete = function (done) {
     this.completed = true;
     this.hexagons = [];
     this.draw();
+    colorPicker.hide();
   };
 };
 
@@ -249,9 +322,11 @@ HexGrid.prototype.draw = function () {
   this.context.fillRect(this.boundingBox.minX, this.boundingBox.minY,
                         this.boundingBox.maxX-this.boundingBox.minX,
                         this.boundingBox.maxY-this.boundingBox.minY)
+  //this.context.fill();
   this.hexagons.forEach(function (hex) {
     hex.draw(self.leftMargin, self.topMargin, self.size)
-  })
+  });
+  //this.context.save();
 }
 
 HexGrid.prototype.includesPos = function (pos) {
@@ -275,7 +350,11 @@ HexGrid.prototype.clickHandler = function (pos) {
   if (!this.completed) {
     this.hexagons[row*this.gridCols+col].used = !this.hexagons[row*this.gridCols+col].used;
     if (this.hexagons[row*this.gridCols+col].used) {
-      this.hexagons[row*this.gridCols+col].color = 'black';
+      if (this.type === 'board') {
+        this.hexagons[row*this.gridCols+col].color = 'black';
+      } else {
+        this.hexagons[row*this.gridCols+col].color = colorPicker.selectedColor;
+      }
     } else {
       this.hexagons[row*this.gridCols+col].color = 'yellow';
     }
@@ -285,7 +364,7 @@ HexGrid.prototype.clickHandler = function (pos) {
 
 module.exports = HexGrid;
 
-},{"./hexagon.js":2,"./piece.js":4}],4:[function(require,module,exports){
+},{"./hexagon.js":3,"./piece.js":5}],5:[function(require,module,exports){
 var Hexagon = require('./hexagon.js')
 
 var Piece = function (context, hexagons, analysis, size) {
@@ -361,4 +440,4 @@ Piece.prototype.draw = function () {
 
 module.exports = Piece;
 
-},{"./hexagon.js":2}]},{},[1]);
+},{"./hexagon.js":3}]},{},[1]);

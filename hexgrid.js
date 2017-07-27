@@ -77,6 +77,7 @@ HexGrid.prototype.complete = function (done) {
     this.completed = true;
     this.hexagons = [];
     this.draw();
+    colorPicker.hide();
   };
 };
 
@@ -124,9 +125,11 @@ HexGrid.prototype.draw = function () {
   this.context.fillRect(this.boundingBox.minX, this.boundingBox.minY,
                         this.boundingBox.maxX-this.boundingBox.minX,
                         this.boundingBox.maxY-this.boundingBox.minY)
+  //this.context.fill();
   this.hexagons.forEach(function (hex) {
     hex.draw(self.leftMargin, self.topMargin, self.size)
-  })
+  });
+  //this.context.save();
 }
 
 HexGrid.prototype.includesPos = function (pos) {
@@ -150,7 +153,11 @@ HexGrid.prototype.clickHandler = function (pos) {
   if (!this.completed) {
     this.hexagons[row*this.gridCols+col].used = !this.hexagons[row*this.gridCols+col].used;
     if (this.hexagons[row*this.gridCols+col].used) {
-      this.hexagons[row*this.gridCols+col].color = 'black';
+      if (this.type === 'board') {
+        this.hexagons[row*this.gridCols+col].color = 'black';
+      } else {
+        this.hexagons[row*this.gridCols+col].color = colorPicker.selectedColor;
+      }
     } else {
       this.hexagons[row*this.gridCols+col].color = 'yellow';
     }

@@ -1,5 +1,6 @@
 var Hexagon = require('./hexagon.js')
 var HexGrid = require('./hexgrid.js')
+var ColorPicker = require('./colorpicker.js')
 
 var canvas = document.getElementById("myCanvas");
 var context = canvas.getContext("2d");
@@ -10,8 +11,8 @@ var ctx2 = c2.getContext("2d");
 var c3 = document.getElementById("pieces");
 ctx3 = c3.getContext("2d");*/
 
-var gridRows = 12;
-var gridCols = 6;
+var gridRows = 14;
+var gridCols = 5;
 var size = 20;
 var leftMargin = 40;
 var topMargin = 40;
@@ -29,6 +30,7 @@ board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topM
 
 pieceGen = new HexGrid(context, 'pieceGen', gridRows, gridCols, size, 2*leftMargin + 1.5*gridCols*size, topMargin);
 
+colorPicker = new ColorPicker(context, 3*leftMargin + 2*1.5*gridCols*size, topMargin);
 pieces = [];
 /*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
 
@@ -45,6 +47,8 @@ function getMousePos(event) {
     board.clickHandler(pos);
   } else if (pieceGen.includesPos(pos)) {
       pieceGen.clickHandler(pos);
+  } else if (colorPicker.includesPos(pos)) {
+      colorPicker.clickHandler(pos);
   } else {
       console.log('OffBoard');
   }

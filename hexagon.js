@@ -39,7 +39,8 @@ Hexagon.prototype.draw = function (xOffset, yOffset, size) {
       this.context.fillStyle = 'white';
     }
     this.context.fill();
-  }
+    //this.context.stroke();
+  };
 };
 
 module.exports = Hexagon;
