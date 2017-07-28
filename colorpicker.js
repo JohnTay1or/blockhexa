@@ -43,17 +43,19 @@ ColorPicker.prototype.includesPos = function (pos) {
 };
 
 ColorPicker.prototype.clickHandler = function (pos) {
-  this.context.strokeStyle = 'white';
-  this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
-  this.context.stroke();
-  this.context.beginPath();
-  var row = parseInt((pos.y-this.boundingBox.minY)/40);
-  console.log(row);
-  this.selectedColor = this.colors[row];
-  this.selectedColorIndex = row
-  this.context.strokeStyle = 'black';
-  this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
-  this.context.stroke();
+  if (!pieceGen.completed) {
+    this.context.strokeStyle = 'white';
+    this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
+    this.context.stroke();
+    this.context.beginPath();
+    var row = parseInt((pos.y-this.boundingBox.minY)/40);
+    //console.log(row);
+    this.selectedColor = this.colors[row];
+    this.selectedColorIndex = row
+    this.context.strokeStyle = 'black';
+    this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
+    this.context.stroke();
+  }
   //console.log(this.selectedColor);
 }
 

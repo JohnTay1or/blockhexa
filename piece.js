@@ -12,6 +12,8 @@ var Piece = function (context, hexagons, analysis, size) {
     //console.log(pieces.length);
     this.leftMargin = board.leftMargin + pieces[pieces.length-1].boundingBox.maxX;
   }
+  this.origTopMargin = this.topMargin;
+  this.origLeftMargin = this.leftMargin;
   this.hexagons = hexagons;
   this.analysis = analysis;
   this.gridCols = analysis.maxCol - analysis.minCol + 1;
@@ -26,6 +28,7 @@ var Piece = function (context, hexagons, analysis, size) {
     maxY: this.topMargin+this.gridRows*0.85*size+2
   };
   this.draw();
+  this.drawBoundingBox();
   //var pieceColCount = analysis.maxCol-analysis.minCol+1;
   //console.log(pr)
   /*for (j = analysis.minRow-1; j < analysis.maxRow; j++) {
@@ -70,5 +73,64 @@ Piece.prototype.draw = function () {
     hex.draw(self.leftMargin, self.topMargin, self.size)
   })
 };
+
+Piece.prototype.drawBoundingBox = function () {
+  var self = this;
+  this.context.save();
+  this.context.strokeStyle = 'black';
+  this.context.lineWidth="1";
+  this.context.setLineDash([5, 3]);
+  this.context.rect(this.boundingBox.minX, this.boundingBox.minY,
+                        this.boundingBox.maxX-this.boundingBox.minX,
+                        this.boundingBox.maxY-this.boundingBox.minY);
+  this.context.stroke();
+  this.context.restore();
+};
+
+Piece.prototype.includesPos = function (pos) {
+  if (pos.x > this.boundingBox.minX &&
+  pos.x < this.boundingBox.maxX &&
+  pos.y > this.boundingBox.minY &&
+  pos.y < this.boundingBox.maxY) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+Piece.prototype.clickHandler = function (pos) {
+  var col = Math.round((pos.x-this.boundingBox.minX-0.25*this.size)/(1.5*this.size)-0.5);
+  if (col % 2 === 0) {
+    var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+  } else {
+    var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+  }
+  //console.log('col ' + col);
+  //console.log('row ' + row);
+  if (this.topMargin === this.origTopMargin) {
+    this.leftMargin = 40;
+    this.topMargin = 40;
+    this.draw();
+  } else {
+    this.leftMargin = this.origLeftMargin;
+    this.topMargin = this.origTopMargin;
+    this.draw();
+    board.draw();
+  }
+
+  /*if (!this.completed) {
+    this.hexagons[row*this.gridCols+col].used = !this.hexagons[row*this.gridCols+col].used;
+    if (this.hexagons[row*this.gridCols+col].used) {
+      if (this.type === 'board') {
+        this.hexagons[row*this.gridCols+col].color = 'black';
+      } else {
+        this.hexagons[row*this.gridCols+col].color = colorPicker.selectedColor;
+      }
+    } else {
+      this.hexagons[row*this.gridCols+col].color = 'yellow';
+    }
+    this.hexagons[row*this.gridCols+col].draw(this.leftMargin, this.topMargin, this.size);
+  }*/
+}
 
 module.exports = Piece;

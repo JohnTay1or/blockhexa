@@ -62,22 +62,28 @@ HexGrid.prototype.init = function () {
 HexGrid.prototype.complete = function (done) {
   //console.log(done)
   // the objective of this function is to trim all the unnecessary cells from around the container
-  var self = this;
-  this.minimize();
+  if (!this.completed) {
+    var self = this;
+    this.minimize();
 
-  if (this.type === 'pieceGen') {
-    var analysis = this.analyze();
-    pieces.push(new Piece(this.context, this.hexagons, analysis, this.size));
-    this.hexagons = this.init();
-    this.gridRows = this.origGridRows;
-    this.gridCols = this.origGridCols;
-    this.draw();
-  }
-  if (done && this.type === 'pieceGen') {
-    this.completed = true;
-    this.hexagons = [];
-    this.draw();
-    colorPicker.hide();
+    if (this.type === 'pieceGen') {
+      var analysis = this.analyze();
+      if (analysis.count > 0) {
+        pieces.push(new Piece(this.context, this.hexagons, analysis, this.size));
+        this.hexagons = this.init();
+        this.gridRows = this.origGridRows;
+        this.gridCols = this.origGridCols;
+        this.draw();
+      }
+    }
+    if (done /*&& this.type === 'pieceGen'*/) {
+      this.completed = true;
+      //this.hexagons = [];
+      //this.draw();
+      if (this.type === 'pieceGen') {
+        colorPicker.hide();
+      }
+    };
   };
 };
 
@@ -98,6 +104,7 @@ HexGrid.prototype.analyze = function () {
 HexGrid.prototype.minimize = function () {
   var self = this;
   var stats = this.analyze();
+  //console.log(stats);
   this.gridRows = stats.maxRow - stats.minRow + 1;
   this.gridCols = stats.maxCol - stats.minCol + 1;
   //console.log(stats);

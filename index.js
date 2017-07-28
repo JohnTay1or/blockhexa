@@ -47,11 +47,21 @@ function getMousePos(event) {
   if (board.includesPos(pos)) {
     board.clickHandler(pos);
   } else if (pieceGen.includesPos(pos)) {
-      pieceGen.clickHandler(pos);
+    pieceGen.clickHandler(pos);
   } else if (colorPicker.includesPos(pos)) {
-      colorPicker.clickHandler(pos);
+    colorPicker.clickHandler(pos);
   } else {
+    var onPiece = false
+    pieces.forEach(function (piece, i) {
+      if (piece.includesPos(pos)) {
+        //console.log('On piece: ' + i );
+        piece.clickHandler(pos)
+        onPiece = true
+      }
+    })
+    if (!onPiece) {
       console.log('OffBoard');
+    }
   }
 }
 
@@ -125,17 +135,19 @@ ColorPicker.prototype.includesPos = function (pos) {
 };
 
 ColorPicker.prototype.clickHandler = function (pos) {
-  this.context.strokeStyle = 'white';
-  this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
-  this.context.stroke();
-  this.context.beginPath();
-  var row = parseInt((pos.y-this.boundingBox.minY)/40);
-  console.log(row);
-  this.selectedColor = this.colors[row];
-  this.selectedColorIndex = row
-  this.context.strokeStyle = 'black';
-  this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
-  this.context.stroke();
+  if (!pieceGen.completed) {
+    this.context.strokeStyle = 'white';
+    this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
+    this.context.stroke();
+    this.context.beginPath();
+    var row = parseInt((pos.y-this.boundingBox.minY)/40);
+    //console.log(row);
+    this.selectedColor = this.colors[row];
+    this.selectedColorIndex = row
+    this.context.strokeStyle = 'black';
+    this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
+    this.context.stroke();
+  }
   //console.log(this.selectedColor);
 }
 
@@ -259,22 +271,28 @@ HexGrid.prototype.init = function () {
 HexGrid.prototype.complete = function (done) {
   //console.log(done)
   // the objective of this function is to trim all the unnecessary cells from around the container
-  var self = this;
-  this.minimize();
+  if (!this.completed) {
+    var self = this;
+    this.minimize();
 
-  if (this.type === 'pieceGen') {
-    var analysis = this.analyze();
-    pieces.push(new Piece(this.context, this.hexagons, analysis, this.size));
-    this.hexagons = this.init();
-    this.gridRows = this.origGridRows;
-    this.gridCols = this.origGridCols;
-    this.draw();
-  }
-  if (done && this.type === 'pieceGen') {
-    this.completed = true;
-    this.hexagons = [];
-    this.draw();
-    colorPicker.hide();
+    if (this.type === 'pieceGen') {
+      var analysis = this.analyze();
+      if (analysis.count > 0) {
+        pieces.push(new Piece(this.context, this.hexagons, analysis, this.size));
+        this.hexagons = this.init();
+        this.gridRows = this.origGridRows;
+        this.gridCols = this.origGridCols;
+        this.draw();
+      }
+    }
+    if (done /*&& this.type === 'pieceGen'*/) {
+      this.completed = true;
+      //this.hexagons = [];
+      //this.draw();
+      if (this.type === 'pieceGen') {
+        colorPicker.hide();
+      }
+    };
   };
 };
 
@@ -295,6 +313,7 @@ HexGrid.prototype.analyze = function () {
 HexGrid.prototype.minimize = function () {
   var self = this;
   var stats = this.analyze();
+  //console.log(stats);
   this.gridRows = stats.maxRow - stats.minRow + 1;
   this.gridCols = stats.maxCol - stats.minCol + 1;
   //console.log(stats);
@@ -379,6 +398,8 @@ var Piece = function (context, hexagons, analysis, size) {
     //console.log(pieces.length);
     this.leftMargin = board.leftMargin + pieces[pieces.length-1].boundingBox.maxX;
   }
+  this.origTopMargin = this.topMargin;
+  this.origLeftMargin = this.leftMargin;
   this.hexagons = hexagons;
   this.analysis = analysis;
   this.gridCols = analysis.maxCol - analysis.minCol + 1;
@@ -393,6 +414,7 @@ var Piece = function (context, hexagons, analysis, size) {
     maxY: this.topMargin+this.gridRows*0.85*size+2
   };
   this.draw();
+  this.drawBoundingBox();
   //var pieceColCount = analysis.maxCol-analysis.minCol+1;
   //console.log(pr)
   /*for (j = analysis.minRow-1; j < analysis.maxRow; j++) {
@@ -437,6 +459,65 @@ Piece.prototype.draw = function () {
     hex.draw(self.leftMargin, self.topMargin, self.size)
   })
 };
+
+Piece.prototype.drawBoundingBox = function () {
+  var self = this;
+  this.context.save();
+  this.context.strokeStyle = 'black';
+  this.context.lineWidth="1";
+  this.context.setLineDash([5, 3]);
+  this.context.rect(this.boundingBox.minX, this.boundingBox.minY,
+                        this.boundingBox.maxX-this.boundingBox.minX,
+                        this.boundingBox.maxY-this.boundingBox.minY);
+  this.context.stroke();
+  this.context.restore();
+};
+
+Piece.prototype.includesPos = function (pos) {
+  if (pos.x > this.boundingBox.minX &&
+  pos.x < this.boundingBox.maxX &&
+  pos.y > this.boundingBox.minY &&
+  pos.y < this.boundingBox.maxY) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+Piece.prototype.clickHandler = function (pos) {
+  var col = Math.round((pos.x-this.boundingBox.minX-0.25*this.size)/(1.5*this.size)-0.5);
+  if (col % 2 === 0) {
+    var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+  } else {
+    var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+  }
+  //console.log('col ' + col);
+  //console.log('row ' + row);
+  if (this.topMargin === this.origTopMargin) {
+    this.leftMargin = 40;
+    this.topMargin = 40;
+    this.draw();
+  } else {
+    this.leftMargin = this.origLeftMargin;
+    this.topMargin = this.origTopMargin;
+    this.draw();
+    board.draw();
+  }
+
+  /*if (!this.completed) {
+    this.hexagons[row*this.gridCols+col].used = !this.hexagons[row*this.gridCols+col].used;
+    if (this.hexagons[row*this.gridCols+col].used) {
+      if (this.type === 'board') {
+        this.hexagons[row*this.gridCols+col].color = 'black';
+      } else {
+        this.hexagons[row*this.gridCols+col].color = colorPicker.selectedColor;
+      }
+    } else {
+      this.hexagons[row*this.gridCols+col].color = 'yellow';
+    }
+    this.hexagons[row*this.gridCols+col].draw(this.leftMargin, this.topMargin, this.size);
+  }*/
+}
 
 module.exports = Piece;
 

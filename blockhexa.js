@@ -46,11 +46,21 @@ function getMousePos(event) {
   if (board.includesPos(pos)) {
     board.clickHandler(pos);
   } else if (pieceGen.includesPos(pos)) {
-      pieceGen.clickHandler(pos);
+    pieceGen.clickHandler(pos);
   } else if (colorPicker.includesPos(pos)) {
-      colorPicker.clickHandler(pos);
+    colorPicker.clickHandler(pos);
   } else {
+    var onPiece = false
+    pieces.forEach(function (piece, i) {
+      if (piece.includesPos(pos)) {
+        //console.log('On piece: ' + i );
+        piece.clickHandler(pos)
+        onPiece = true
+      }
+    })
+    if (!onPiece) {
       console.log('OffBoard');
+    }
   }
 }
 
