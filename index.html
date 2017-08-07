@@ -3,27 +3,33 @@
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   </head>
+  <!--<body onLoad='init()'>-->
   <body>
     <p>Block Hexa</p>
     <div id="board">
     	<canvas id="myCanvas" width="800" height="500" style="border:1px solid #d3d3d3;">
     		Your browser does not support the HTML5 canvas tag.
-  	   </canvas>
-    	<!--<canvas id="pieceGenerator" width="400" height="400" style="border:1px solid #d3d3d3;">
+  	  </canvas>
+      <!--<canvas id="canvas1" width="800" height="200" style="border:1px solid #d3d3d3;">
+    		Your browser does not support the HTML5 canvas tag.
+  	  </canvas>
+    	<canvas id="pieceGenerator" width="400" height="400" style="border:1px solid #d3d3d3;">
       		Your browser does not support the HTML5 canvas tag.
     	</canvas>
       <canvas id="pieces" width="800" height="200" style="border:1px solid #d3d3d3;">
       		Your browser does not support the HTML5 canvas tag.
     	</canvas>-->
-  </div>
+    </div>
 
-  <!--<label for="boardSize">Board Size</label>
-  <input type="number" id="boardSize" name="boardSize" min="1" max="8" value=7>-->
-	<!--<input id="lockBoard" type="button" value="Board Complete" onclick="lockBoard();" />-->
-  <input id="completeBoard" type="button" value="Board Complete" onclick="board.complete(true);" />
-	<input id="createPiece" type="button" value="Piece Complete" onclick="pieceGen.complete(false);" />
-  <input id="createAllPiece" type="button" value="All Pieces Complete" onclick="pieceGen.complete(true);" />
+    <!--<label for="boardSize">Board Size</label>
+    <input type="number" id="boardSize" name="boardSize" min="1" max="8" value=7>-->
+  	<!--<input id="lockBoard" type="button" value="Board Complete" onclick="lockBoard();" />-->
+    <input id="completeBoard" type="button" value="Board Complete" onclick="board.complete(true);" />
+  	<input id="createPiece" type="button" value="Piece Complete" onclick="pieceGen.complete(false);" />
+    <input id="createAllPiece" type="button" value="All Pieces Complete" onclick="pieceGen.complete(true);" />
 
-  <script src="index.js"></script>
+    <script src="index.js"></script>
+    <!--<script src="canvasstate.js"></script>-->
 
-</body>
+  </body>
+</html>

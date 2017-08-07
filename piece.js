@@ -28,7 +28,7 @@ var Piece = function (context, hexagons, analysis, size) {
     maxY: this.topMargin+this.gridRows*0.85*size+2
   };
   this.draw();
-  this.drawBoundingBox();
+  //this.drawBoundingBox();
   //var pieceColCount = analysis.maxCol-analysis.minCol+1;
   //console.log(pr)
   /*for (j = analysis.minRow-1; j < analysis.maxRow; j++) {
@@ -62,6 +62,7 @@ var Piece = function (context, hexagons, analysis, size) {
 
 Piece.prototype.draw = function () {
   var self = this;
+  //console.log(pos);
   this.context.fillStyle = 'white';
   this.context.fillRect(this.boundingBox.minX, this.boundingBox.minY,
                         this.boundingBox.maxX-this.boundingBox.minX,
@@ -70,7 +71,9 @@ Piece.prototype.draw = function () {
     //console.log(self.leftMargin);
     //console.log(self.topMargin);
     //console.log(self.size);
-    hex.draw(self.leftMargin, self.topMargin, self.size)
+    //hex.draw(self.leftMargin, self.topMargin, self.size)
+    hex.draw(self.leftMargin, self.topMargin, self.size, true);
+    hex.draw(self.leftMargin, self.topMargin+80, self.size, false);
   })
 };
 
@@ -107,7 +110,7 @@ Piece.prototype.clickHandler = function (pos) {
   }
   //console.log('col ' + col);
   //console.log('row ' + row);
-  if (this.topMargin === this.origTopMargin) {
+  /*if (this.topMargin === this.origTopMargin) {
     this.leftMargin = 40;
     this.topMargin = 40;
     this.draw();
@@ -116,7 +119,7 @@ Piece.prototype.clickHandler = function (pos) {
     this.topMargin = this.origTopMargin;
     this.draw();
     board.draw();
-  }
+  }*/
 
   /*if (!this.completed) {
     this.hexagons[row*this.gridCols+col].used = !this.hexagons[row*this.gridCols+col].used;

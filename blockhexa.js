@@ -1,6 +1,7 @@
 var Hexagon = require('./hexagon.js')
 var HexGrid = require('./hexgrid.js')
 var ColorPicker = require('./colorpicker.js')
+var CanvasState = require('./canvasstate.js')
 
 var canvas = document.getElementById("myCanvas");
 var context = canvas.getContext("2d");
@@ -25,6 +26,10 @@ hex1.draw(80, 40, size);
 hex2.draw(80, 40, size);
 hex3.draw(80, 40, size);
 hex4.draw(80, 40, size);*/
+
+//logging = false;
+
+state = new CanvasState(canvas);
 
 board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topMargin);
 

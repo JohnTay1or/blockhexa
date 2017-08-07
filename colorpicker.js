@@ -4,12 +4,12 @@ var ColorPicker = function (context, leftMargin, topMargin) {
   this.leftMargin = leftMargin;
   this.topMargin = topMargin;
   this.colors = [
-    '#FBD15A', //yellow
-    '#F45A92', //pink
-    '#7F56F9', //purple
-    '#B8F75F', //green
-    '#F58836', //orange
-    '#5CD5F6' //blue
+    'rgba(251,209,90,1)', //yellow
+    'rgba(244,90,146,1)', //pink
+    'rgba(127,86,249,1)', //purple
+    'rgba(184,247,95,1)', //green
+    'rgba(245,136,54,1)', //orange
+    'rgba(92,213,246,1)' //blue
   ];
   this.boundingBox = {
     minX: leftMargin,
@@ -22,12 +22,14 @@ var ColorPicker = function (context, leftMargin, topMargin) {
     self.context.fillStyle = color;
     self.context.fillRect(self.leftMargin, self.topMargin+i*40, 30, 30);
   });
-  this.selectedColor = this.colors[0]
+  this.selectedColor = this.colors[0];
   this.selectedColorIndex = 0;
+  this.context.save();
   this.context.lineWidth="2";
   this.context.strokeStyle="black";
   this.context.rect(self.leftMargin, self.topMargin, 30, 30);
   this.context.stroke();
+  this.context.restore();
 };
 
 ColorPicker.prototype.includesPos = function (pos) {
