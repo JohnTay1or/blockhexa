@@ -30,7 +30,7 @@ hex4.draw(80, 40, size);*/
 
 //logging = false;
 
-state = new CanvasState(canvas);
+canvasState = new CanvasState(canvas);
 
 board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topMargin);
 
@@ -182,23 +182,29 @@ var CanvasState = function (canvas) {
       var mouse = myState.getMouse(e);
       var mx = mouse.x;
       var my = mouse.y;
-      console.log('mx: ' + mx + ' my: ' + my);
+      //console.log('mx: ' + mx + ' my: ' + my);
       var mySel;
-      pieces.forEach(function (piece, i) {
-        if (piece.includesPos(mouse)) {
-          console.log('On piece: ' + i );
-          mySel = i;
-          myState.dragoffx = mx - mySel.x;
-          myState.dragoffy = my - mySel.y;
+      for (i = 0;  i < pieces.length; i++) {
+        //console.log('Trying piece: ' + i);
+        if (pieces[i].includesPos(mouse)) {
+          //console.log('On piece: ' + i );
+          mySel = pieces[i];
+          myState.dragoffx = mx - mySel.origLeftMargin;
+          //console.log(myState.dragoffx);
+          myState.dragoffy = my - mySel.origTopMargin;
+          //console.log(myState.dragoffy);
           myState.dragging = true;
           myState.selection = mySel;
+          //console.log('mySel: ' + mySel);
+          //console.log('myState.selection: ' + myState.selection);
           myState.valid = false;
-          return;
+          return true;
         };
-      });
+      };
       // havent returned means we have failed to select anything.
       // If there was an object selected, we deselect it
       if (myState.selection) {
+        //console.log('Am I here');
         myState.selection = null;
         myState.valid = false; // Need to clear the old selection border
       }
@@ -209,13 +215,33 @@ var CanvasState = function (canvas) {
       var mouse = myState.getMouse(e);
       // We don't want to drag the object by its top-left corner, we want to drag it
       // from where we clicked. Thats why we saved the offset and use it here
-      myState.selection.x = mouse.x - myState.dragoffx;
-      myState.selection.y = mouse.y - myState.dragoffy;
+      myState.selection.leftMargin = mouse.x - myState.dragoffx;
+      myState.selection.topMargin = mouse.y - myState.dragoffy;
       myState.valid = false; // Something's dragging so we must redraw
     }
   }, true);
   canvas.addEventListener('mouseup', function(e) {
-    myState.dragging = false;
+    if (board.completed && pieceGen.completed) {
+    //you can only release a piece when you are on the board.
+      var mouse = myState.getMouse(e);
+      if (board.includesPos(mouse)) {
+        console.log('On board');
+        var gridPos = board.clickHandler(mouse);
+        if (gridPos.row <= board.gridRows &&
+          gridPos.col <= board.gridRows) {
+        } else {
+          myState.selection.leftMargin = myState.selection.origLeftMargin;
+          myState.selection.topMargin = myState.selection.origTopMargin;
+          myState.valid = false;
+        };
+      } else {
+        console.log('Off board');
+        myState.selection.leftMargin = myState.selection.origLeftMargin;
+        myState.selection.topMargin = myState.selection.origTopMargin;
+        myState.valid = false;
+      }
+      myState.dragging = false;
+    }
   }, true);
   // double click for making new shapes
   canvas.addEventListener('dblclick', function(e) {
@@ -258,14 +284,14 @@ CanvasState.prototype.draw = function() {
     });
 
     // draw all shapes
-    var l = shapes.length;
+    /*var l = shapes.length;
     for (var i = 0; i < l; i++) {
       var shape = shapes[i];
       // We can skip the drawing of elements that have moved off the screen:
       if (shape.x > this.width || shape.y > this.height ||
           shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;
       shapes[i].draw(ctx);
-    }
+    }*/
 
     // draw selection
     // right now this is just a stroke along the edge of the selected Shape
@@ -642,6 +668,7 @@ HexGrid.prototype.clickHandler = function (pos) {
     }
     this.hexagons[row*this.gridCols+col].draw(this.leftMargin, this.topMargin, this.size);
   }
+  return {row: row, col: col};
 }
 
 module.exports = HexGrid;
@@ -712,17 +739,17 @@ var Piece = function (context, hexagons, analysis, size) {
 Piece.prototype.draw = function () {
   var self = this;
   //console.log(pos);
-  this.context.fillStyle = 'white';
+  /*this.context.fillStyle = 'white';
   this.context.fillRect(this.boundingBox.minX, this.boundingBox.minY,
                         this.boundingBox.maxX-this.boundingBox.minX,
-                        this.boundingBox.maxY-this.boundingBox.minY)
+                        this.boundingBox.maxY-this.boundingBox.minY)*/
   this.hexagons.forEach(function (hex) {
     //console.log(self.leftMargin);
     //console.log(self.topMargin);
     //console.log(self.size);
     //hex.draw(self.leftMargin, self.topMargin, self.size)
-    hex.draw(self.leftMargin, self.topMargin, self.size, true);
-    hex.draw(self.leftMargin, self.topMargin+80, self.size, false);
+    hex.draw(self.origLeftMargin, self.origTopMargin, self.size, true);
+    hex.draw(self.leftMargin, self.topMargin, self.size, false);
   })
 };
 

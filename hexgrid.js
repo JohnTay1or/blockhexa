@@ -170,6 +170,7 @@ HexGrid.prototype.clickHandler = function (pos) {
     }
     this.hexagons[row*this.gridCols+col].draw(this.leftMargin, this.topMargin, this.size);
   }
+  return {row: row, col: col};
 }
 
 module.exports = HexGrid;

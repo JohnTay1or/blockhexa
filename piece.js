@@ -63,17 +63,17 @@ var Piece = function (context, hexagons, analysis, size) {
 Piece.prototype.draw = function () {
   var self = this;
   //console.log(pos);
-  this.context.fillStyle = 'white';
+  /*this.context.fillStyle = 'white';
   this.context.fillRect(this.boundingBox.minX, this.boundingBox.minY,
                         this.boundingBox.maxX-this.boundingBox.minX,
-                        this.boundingBox.maxY-this.boundingBox.minY)
+                        this.boundingBox.maxY-this.boundingBox.minY)*/
   this.hexagons.forEach(function (hex) {
     //console.log(self.leftMargin);
     //console.log(self.topMargin);
     //console.log(self.size);
     //hex.draw(self.leftMargin, self.topMargin, self.size)
-    hex.draw(self.leftMargin, self.topMargin, self.size, true);
-    hex.draw(self.leftMargin, self.topMargin+80, self.size, false);
+    hex.draw(self.origLeftMargin, self.origTopMargin, self.size, true);
+    hex.draw(self.leftMargin, self.topMargin, self.size, false);
   })
 };
 

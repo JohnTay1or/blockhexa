@@ -29,7 +29,7 @@ hex4.draw(80, 40, size);*/
 
 //logging = false;
 
-state = new CanvasState(canvas);
+canvasState = new CanvasState(canvas);
 
 board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topMargin);
 
