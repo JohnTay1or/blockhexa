@@ -44,16 +44,19 @@ HexGrid.prototype.init = function () {
   var initHex = [];
   var visible = false;
   var dummy = false;
+  var available = true;
   for (var i = 0; i < this.origGridRows; i++) {
     for (var j = 0; j < this.origGridCols; j++) {
       if ( (i+j)%2 === 0 ) {
         visible = true;
+        available = true;
         dummy = false;
       } else {
         visible = false;
+        available = false;
         dummy = true;
       };
-      initHex.push(new Hexagon(this.context, i, j, visible, false, null, 'yellow', dummy));
+      initHex.push(new Hexagon(this.context, i, j, visible, false, available, 'yellow', dummy));
     };
   };
   return initHex;
@@ -76,13 +79,19 @@ HexGrid.prototype.complete = function (done) {
         this.draw();
       }
     }
+    if (done && this.type === 'pieceGen') {
+      this.hexagons.forEach(function (hex) {
+        hex.available = false;
+      });
+    }
     if (done /*&& this.type === 'pieceGen'*/) {
       this.completed = true;
       //this.hexagons = [];
-      //this.draw();
-      if (this.type === 'pieceGen') {
+      canvasState.valid = false;
+      canvasState.draw();
+      /*if (this.type === 'pieceGen') {
         colorPicker.hide();
-      }
+      }*/
     };
   };
 };
@@ -118,6 +127,7 @@ HexGrid.prototype.minimize = function () {
       hex.col = hex.col - stats.minCol;
       if (!hex.used) {
         hex.visible = false;
+        hex.available = false;
       }
       self.minHexagons.push(hex);
     }
@@ -128,10 +138,10 @@ HexGrid.prototype.minimize = function () {
 
 HexGrid.prototype.draw = function () {
   var self = this;
-  this.context.fillStyle = 'white';
+  /*this.context.fillStyle = 'white';
   this.context.fillRect(this.boundingBox.minX, this.boundingBox.minY,
                         this.boundingBox.maxX-this.boundingBox.minX,
-                        this.boundingBox.maxY-this.boundingBox.minY)
+                        this.boundingBox.maxY-this.boundingBox.minY)temporary*/
   //this.context.fill();
   this.hexagons.forEach(function (hex) {
     hex.draw(self.leftMargin, self.topMargin, self.size)
@@ -168,8 +178,10 @@ HexGrid.prototype.clickHandler = function (pos) {
     } else {
       this.hexagons[row*this.gridCols+col].color = 'yellow';
     }
-    this.hexagons[row*this.gridCols+col].draw(this.leftMargin, this.topMargin, this.size);
+    //this.hexagons[row*this.gridCols+col].draw(this.leftMargin, this.topMargin, this.size);
   }
+  canvasState.valid=false;
+  canvasState.draw();
   return {row: row, col: col};
 }
 

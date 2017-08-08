@@ -14,7 +14,8 @@ Hexagon.prototype.draw = function (xOffset, yOffset, size, isOpaque) {
   //console.log(xOffset);
   //the x and y offsets determine the postion of the centre of the 0 hexagon
   //the other hexagons positions use the col and row to determine the position relative to cell 0
-  if ( !this.dummy ) {
+  //if ( !this.dummy ) {
+  if ( this.used || this.available ) {
     this.context.save();
     this.context.beginPath();
     this.context.moveTo(xOffset+(-0.5+this.col*1.5)*size, yOffset+(-1+this.row)*0.85*size);
@@ -29,7 +30,7 @@ Hexagon.prototype.draw = function (xOffset, yOffset, size, isOpaque) {
     if (this.visible) {
       this.context.strokeStyle="grey";
     } else {
-      this.context.strokeStyle="white";
+      //this.context.strokeStyle="white";temporary
     }
     this.context.stroke();
 
@@ -51,7 +52,7 @@ Hexagon.prototype.draw = function (xOffset, yOffset, size, isOpaque) {
       //console.log('I should be a color');
     } else {
       //console.log('I should be white');
-      this.context.fillStyle = 'white';
+      //this.context.fillStyle = 'white';temporary
     }
     //console.log(this.context.fillStyle);
     this.context.fill();

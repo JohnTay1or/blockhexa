@@ -227,8 +227,13 @@ var CanvasState = function (canvas) {
       if (board.includesPos(mouse)) {
         console.log('On board');
         var gridPos = board.clickHandler(mouse);
+        //console.log(gridPos);
         if (gridPos.row <= board.gridRows &&
           gridPos.col <= board.gridRows) {
+          myState.selection.allowed();
+          myState.selection.leftMargin = board.leftMargin + (gridPos.col)*1.5*board.size;
+          myState.selection.topMargin = board.topMargin + (gridPos.row)*0.85*board.size;
+          myState.valid = false;
         } else {
           myState.selection.leftMargin = myState.selection.origLeftMargin;
           myState.selection.topMargin = myState.selection.origTopMargin;
@@ -270,7 +275,7 @@ CanvasState.prototype.clear = function() {
 // It only ever does something if the canvas gets invalidated by our code
 CanvasState.prototype.draw = function() {
   // if our state is invalid, redraw and validate!
-  if (!this.valid && board.completed && pieceGen.completed) {
+  if (!this.valid /*&& board.completed && pieceGen.completed*/) {
     //console.log('IncanvasStateDraw');
     var ctx = this.ctx;
     var shapes = this.shapes;
@@ -278,6 +283,8 @@ CanvasState.prototype.draw = function() {
 
     // ** Add stuff you want drawn in the background all the time here **
     board.draw();
+    pieceGen.draw();
+    colorPicker.draw();
     pieces.forEach(function (p, i) {
       //console.log('Drawing piece ' + i);
       p.draw();
@@ -365,25 +372,15 @@ var ColorPicker = function (context, leftMargin, topMargin) {
     'rgba(245,136,54,1)', //orange
     'rgba(92,213,246,1)' //blue
   ];
+  this.selectedColor = this.colors[0];
+  this.selectedColorIndex = 0;
   this.boundingBox = {
     minX: leftMargin,
     minY: topMargin,
     maxX: leftMargin+30,
     maxY: topMargin+this.colors.length*40
   };
-  this.context.beginPath() //Not sure why this is necessary but it stops the last hexagon having odd shading
-  this.colors.forEach(function(color, i) {
-    self.context.fillStyle = color;
-    self.context.fillRect(self.leftMargin, self.topMargin+i*40, 30, 30);
-  });
-  this.selectedColor = this.colors[0];
-  this.selectedColorIndex = 0;
-  this.context.save();
-  this.context.lineWidth="2";
-  this.context.strokeStyle="black";
-  this.context.rect(self.leftMargin, self.topMargin, 30, 30);
-  this.context.stroke();
-  this.context.restore();
+  this.draw();
 };
 
 ColorPicker.prototype.includesPos = function (pos) {
@@ -415,9 +412,28 @@ ColorPicker.prototype.clickHandler = function (pos) {
   //console.log(this.selectedColor);
 }
 
-ColorPicker.prototype.hide = function () {
+/*ColorPicker.prototype.hide = function () {
   this.context.fillStyle = 'white';
   this.context.fillRect(this.leftMargin-1, this.topMargin-1, 30+2, 40*this.colors.length+2);
+}*/
+
+ColorPicker.prototype.draw = function () {
+  //console.log('Am I here');
+  if (!pieceGen.completed) {
+    //console.log('What about here');
+    var self = this;
+    this.context.beginPath() //Not sure why this is necessary but it stops the last hexagon having odd shading
+    this.colors.forEach(function(color, i) {
+      self.context.fillStyle = color;
+      self.context.fillRect(self.leftMargin, self.topMargin+i*40, 30, 30);
+    });
+    this.context.save();
+    this.context.lineWidth="2";
+    this.context.strokeStyle="black";
+    this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
+    this.context.stroke();
+    this.context.restore();
+  }
 }
 
 module.exports = ColorPicker;
@@ -439,7 +455,8 @@ Hexagon.prototype.draw = function (xOffset, yOffset, size, isOpaque) {
   //console.log(xOffset);
   //the x and y offsets determine the postion of the centre of the 0 hexagon
   //the other hexagons positions use the col and row to determine the position relative to cell 0
-  if ( !this.dummy ) {
+  //if ( !this.dummy ) {
+  if ( this.used || this.available ) {
     this.context.save();
     this.context.beginPath();
     this.context.moveTo(xOffset+(-0.5+this.col*1.5)*size, yOffset+(-1+this.row)*0.85*size);
@@ -454,7 +471,7 @@ Hexagon.prototype.draw = function (xOffset, yOffset, size, isOpaque) {
     if (this.visible) {
       this.context.strokeStyle="grey";
     } else {
-      this.context.strokeStyle="white";
+      //this.context.strokeStyle="white";temporary
     }
     this.context.stroke();
 
@@ -476,7 +493,7 @@ Hexagon.prototype.draw = function (xOffset, yOffset, size, isOpaque) {
       //console.log('I should be a color');
     } else {
       //console.log('I should be white');
-      this.context.fillStyle = 'white';
+      //this.context.fillStyle = 'white';temporary
     }
     //console.log(this.context.fillStyle);
     this.context.fill();
@@ -542,16 +559,19 @@ HexGrid.prototype.init = function () {
   var initHex = [];
   var visible = false;
   var dummy = false;
+  var available = true;
   for (var i = 0; i < this.origGridRows; i++) {
     for (var j = 0; j < this.origGridCols; j++) {
       if ( (i+j)%2 === 0 ) {
         visible = true;
+        available = true;
         dummy = false;
       } else {
         visible = false;
+        available = false;
         dummy = true;
       };
-      initHex.push(new Hexagon(this.context, i, j, visible, false, null, 'yellow', dummy));
+      initHex.push(new Hexagon(this.context, i, j, visible, false, available, 'yellow', dummy));
     };
   };
   return initHex;
@@ -574,13 +594,19 @@ HexGrid.prototype.complete = function (done) {
         this.draw();
       }
     }
+    if (done && this.type === 'pieceGen') {
+      this.hexagons.forEach(function (hex) {
+        hex.available = false;
+      });
+    }
     if (done /*&& this.type === 'pieceGen'*/) {
       this.completed = true;
       //this.hexagons = [];
-      //this.draw();
-      if (this.type === 'pieceGen') {
+      canvasState.valid = false;
+      canvasState.draw();
+      /*if (this.type === 'pieceGen') {
         colorPicker.hide();
-      }
+      }*/
     };
   };
 };
@@ -616,6 +642,7 @@ HexGrid.prototype.minimize = function () {
       hex.col = hex.col - stats.minCol;
       if (!hex.used) {
         hex.visible = false;
+        hex.available = false;
       }
       self.minHexagons.push(hex);
     }
@@ -626,10 +653,10 @@ HexGrid.prototype.minimize = function () {
 
 HexGrid.prototype.draw = function () {
   var self = this;
-  this.context.fillStyle = 'white';
+  /*this.context.fillStyle = 'white';
   this.context.fillRect(this.boundingBox.minX, this.boundingBox.minY,
                         this.boundingBox.maxX-this.boundingBox.minX,
-                        this.boundingBox.maxY-this.boundingBox.minY)
+                        this.boundingBox.maxY-this.boundingBox.minY)temporary*/
   //this.context.fill();
   this.hexagons.forEach(function (hex) {
     hex.draw(self.leftMargin, self.topMargin, self.size)
@@ -666,8 +693,10 @@ HexGrid.prototype.clickHandler = function (pos) {
     } else {
       this.hexagons[row*this.gridCols+col].color = 'yellow';
     }
-    this.hexagons[row*this.gridCols+col].draw(this.leftMargin, this.topMargin, this.size);
+    //this.hexagons[row*this.gridCols+col].draw(this.leftMargin, this.topMargin, this.size);
   }
+  canvasState.valid=false;
+  canvasState.draw();
   return {row: row, col: col};
 }
 
@@ -704,36 +733,6 @@ var Piece = function (context, hexagons, analysis, size) {
     maxY: this.topMargin+this.gridRows*0.85*size+2
   };
   this.draw();
-  //this.drawBoundingBox();
-  //var pieceColCount = analysis.maxCol-analysis.minCol+1;
-  //console.log(pr)
-  /*for (j = analysis.minRow-1; j < analysis.maxRow; j++) {
-    for (i = analysis.minCol-1; i < analysis.maxCol; i++) {
-      //console.log('j ' + j);
-      //console.log('i ' + i);
-      //console.log('here')
-      //console.log(hexagons[i*gridSize+j].visible);
-      if (i%2 === 0) {
-        this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*(i-analysis.minCol+1)*size, topMargin+size*(1.7*(j-analysis.minRow+1)), size, null, 'red'));
-      } else {
-        this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*(i-analysis.minCol+1)*size, topMargin+size*(1.7*(j-analysis.minRow+1)+0.85), size, null, 'red'));
-      };
-
-      this.hexagons[(j-analysis.minRow+1)*pieceColCount+i-analysis.minCol+1].visible = hexagons[j*gridSize+i].visible;
-      //console.log(hexagons[(j+analysis.minRow-1)*gridSize+i+analysis.minCol-1].visible);
-      //if (this.hexagons[j*pieceColCount+i].visible) {
-        //console.log('hi')
-        //this.hexagons[j*pieceColCount+i].draw()
-      //}
-      this.hexagons.forEach(function(hex) {
-        hex.draw();
-      })
-    }
-
-  }
-  //console.log(hexagons);
-  //console.log(analysis);
-  */
 };
 
 Piece.prototype.draw = function () {
@@ -753,7 +752,18 @@ Piece.prototype.draw = function () {
   })
 };
 
-Piece.prototype.drawBoundingBox = function () {
+Piece.prototype.allowed = function () {
+  var self = this;
+  this.hexagons.forEach(function (hex, i) {
+    if (hex.used) {
+      console.log('piece index: ' + i);
+        //console.log('board index: ' + gridPos.row*board.gridCols+gridPos.col);
+        //board.hexagons[gridPos.row*board.gridCols+gridPos.col].avaiable;
+    }
+  })
+};
+
+/*Piece.prototype.drawBoundingBox = function () {
   var self = this;
   this.context.save();
   this.context.strokeStyle = 'black';
@@ -764,7 +774,7 @@ Piece.prototype.drawBoundingBox = function () {
                         this.boundingBox.maxY-this.boundingBox.minY);
   this.context.stroke();
   this.context.restore();
-};
+};*/
 
 Piece.prototype.includesPos = function (pos) {
   if (pos.x > this.boundingBox.minX &&

@@ -28,36 +28,6 @@ var Piece = function (context, hexagons, analysis, size) {
     maxY: this.topMargin+this.gridRows*0.85*size+2
   };
   this.draw();
-  //this.drawBoundingBox();
-  //var pieceColCount = analysis.maxCol-analysis.minCol+1;
-  //console.log(pr)
-  /*for (j = analysis.minRow-1; j < analysis.maxRow; j++) {
-    for (i = analysis.minCol-1; i < analysis.maxCol; i++) {
-      //console.log('j ' + j);
-      //console.log('i ' + i);
-      //console.log('here')
-      //console.log(hexagons[i*gridSize+j].visible);
-      if (i%2 === 0) {
-        this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*(i-analysis.minCol+1)*size, topMargin+size*(1.7*(j-analysis.minRow+1)), size, null, 'red'));
-      } else {
-        this.hexagons.push(new Hexagon(ctx3, leftMargin+1.5*(i-analysis.minCol+1)*size, topMargin+size*(1.7*(j-analysis.minRow+1)+0.85), size, null, 'red'));
-      };
-
-      this.hexagons[(j-analysis.minRow+1)*pieceColCount+i-analysis.minCol+1].visible = hexagons[j*gridSize+i].visible;
-      //console.log(hexagons[(j+analysis.minRow-1)*gridSize+i+analysis.minCol-1].visible);
-      //if (this.hexagons[j*pieceColCount+i].visible) {
-        //console.log('hi')
-        //this.hexagons[j*pieceColCount+i].draw()
-      //}
-      this.hexagons.forEach(function(hex) {
-        hex.draw();
-      })
-    }
-
-  }
-  //console.log(hexagons);
-  //console.log(analysis);
-  */
 };
 
 Piece.prototype.draw = function () {
@@ -77,7 +47,18 @@ Piece.prototype.draw = function () {
   })
 };
 
-Piece.prototype.drawBoundingBox = function () {
+Piece.prototype.allowed = function () {
+  var self = this;
+  this.hexagons.forEach(function (hex, i) {
+    if (hex.used) {
+      console.log('piece index: ' + i);
+        //console.log('board index: ' + gridPos.row*board.gridCols+gridPos.col);
+        //board.hexagons[gridPos.row*board.gridCols+gridPos.col].avaiable;
+    }
+  })
+};
+
+/*Piece.prototype.drawBoundingBox = function () {
   var self = this;
   this.context.save();
   this.context.strokeStyle = 'black';
@@ -88,7 +69,7 @@ Piece.prototype.drawBoundingBox = function () {
                         this.boundingBox.maxY-this.boundingBox.minY);
   this.context.stroke();
   this.context.restore();
-};
+};*/
 
 Piece.prototype.includesPos = function (pos) {
   if (pos.x > this.boundingBox.minX &&

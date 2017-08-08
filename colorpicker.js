@@ -11,25 +11,15 @@ var ColorPicker = function (context, leftMargin, topMargin) {
     'rgba(245,136,54,1)', //orange
     'rgba(92,213,246,1)' //blue
   ];
+  this.selectedColor = this.colors[0];
+  this.selectedColorIndex = 0;
   this.boundingBox = {
     minX: leftMargin,
     minY: topMargin,
     maxX: leftMargin+30,
     maxY: topMargin+this.colors.length*40
   };
-  this.context.beginPath() //Not sure why this is necessary but it stops the last hexagon having odd shading
-  this.colors.forEach(function(color, i) {
-    self.context.fillStyle = color;
-    self.context.fillRect(self.leftMargin, self.topMargin+i*40, 30, 30);
-  });
-  this.selectedColor = this.colors[0];
-  this.selectedColorIndex = 0;
-  this.context.save();
-  this.context.lineWidth="2";
-  this.context.strokeStyle="black";
-  this.context.rect(self.leftMargin, self.topMargin, 30, 30);
-  this.context.stroke();
-  this.context.restore();
+  this.draw();
 };
 
 ColorPicker.prototype.includesPos = function (pos) {
@@ -61,9 +51,28 @@ ColorPicker.prototype.clickHandler = function (pos) {
   //console.log(this.selectedColor);
 }
 
-ColorPicker.prototype.hide = function () {
+/*ColorPicker.prototype.hide = function () {
   this.context.fillStyle = 'white';
   this.context.fillRect(this.leftMargin-1, this.topMargin-1, 30+2, 40*this.colors.length+2);
+}*/
+
+ColorPicker.prototype.draw = function () {
+  //console.log('Am I here');
+  if (!pieceGen.completed) {
+    //console.log('What about here');
+    var self = this;
+    this.context.beginPath() //Not sure why this is necessary but it stops the last hexagon having odd shading
+    this.colors.forEach(function(color, i) {
+      self.context.fillStyle = color;
+      self.context.fillRect(self.leftMargin, self.topMargin+i*40, 30, 30);
+    });
+    this.context.save();
+    this.context.lineWidth="2";
+    this.context.strokeStyle="black";
+    this.context.rect(this.leftMargin, this.topMargin+this.selectedColorIndex*40, 30, 30);
+    this.context.stroke();
+    this.context.restore();
+  }
 }
 
 module.exports = ColorPicker;

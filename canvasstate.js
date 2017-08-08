@@ -130,8 +130,13 @@ var CanvasState = function (canvas) {
       if (board.includesPos(mouse)) {
         console.log('On board');
         var gridPos = board.clickHandler(mouse);
+        //console.log(gridPos);
         if (gridPos.row <= board.gridRows &&
           gridPos.col <= board.gridRows) {
+          myState.selection.allowed();
+          myState.selection.leftMargin = board.leftMargin + (gridPos.col)*1.5*board.size;
+          myState.selection.topMargin = board.topMargin + (gridPos.row)*0.85*board.size;
+          myState.valid = false;
         } else {
           myState.selection.leftMargin = myState.selection.origLeftMargin;
           myState.selection.topMargin = myState.selection.origTopMargin;
@@ -173,7 +178,7 @@ CanvasState.prototype.clear = function() {
 // It only ever does something if the canvas gets invalidated by our code
 CanvasState.prototype.draw = function() {
   // if our state is invalid, redraw and validate!
-  if (!this.valid && board.completed && pieceGen.completed) {
+  if (!this.valid /*&& board.completed && pieceGen.completed*/) {
     //console.log('IncanvasStateDraw');
     var ctx = this.ctx;
     var shapes = this.shapes;
@@ -181,6 +186,8 @@ CanvasState.prototype.draw = function() {
 
     // ** Add stuff you want drawn in the background all the time here **
     board.draw();
+    pieceGen.draw();
+    colorPicker.draw();
     pieces.forEach(function (p, i) {
       //console.log('Drawing piece ' + i);
       p.draw();
