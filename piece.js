@@ -83,12 +83,23 @@ Piece.prototype.includesPos = function (pos) {
 };
 
 Piece.prototype.clickHandler = function (pos) {
+  //console.log('Am I here');
+  console.log(this.hexagons[0].dummy);
   var col = Math.round((pos.x-this.boundingBox.minX-0.25*this.size)/(1.5*this.size)-0.5);
-  if (col % 2 === 0) {
-    var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+  if (!this.hexagons[0].dummy) {
+    if (col % 2 === 0) {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    }
   } else {
-    var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    if (col % 2 === 1) {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    }
   }
+  return {row: row, col: col};
   //console.log('col ' + col);
   //console.log('row ' + row);
   /*if (this.topMargin === this.origTopMargin) {

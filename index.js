@@ -106,7 +106,7 @@ function getMousePosOnCanvas(canvas, event) {
 
 // Constructor for Shape objects to hold data for all drawn objects.
 // For now they will just be defined as rectangles.
-function Shape(x, y, w, h, fill) {
+/*function Shape(x, y, w, h, fill) {
   // This is a very simple and unsafe constructor. All we're doing is checking if the values exist.
   // "x || 0" just means "if there is a value for x, use that. Otherwise use 0."
   // But we aren't checking anything else! We could put "Lalala" for the value of x
@@ -115,21 +115,21 @@ function Shape(x, y, w, h, fill) {
   this.w = w || 1;
   this.h = h || 1;
   this.fill = fill || '#AAAAAA';
-}
+}*/
 
 // Draws this shape to a given context
-Shape.prototype.draw = function(ctx) {
+/*Shape.prototype.draw = function(ctx) {
   ctx.fillStyle = this.fill;
   ctx.fillRect(this.x, this.y, this.w, this.h);
-}
+}*/
 
 // Determine if a point is inside the shape's bounds
-Shape.prototype.contains = function(mx, my) {
+/*Shape.prototype.contains = function(mx, my) {
   // All we have to do is make sure the Mouse X,Y fall in the area between
   // the shape's X and (X + Width) and its Y and (Y + Height)
   return  (this.x <= mx) && (this.x + this.w >= mx) &&
           (this.y <= my) && (this.y + this.h >= my);
-}
+}*/
 
 var CanvasState = function (canvas) {
   // **** First some setup! ****
@@ -161,6 +161,7 @@ var CanvasState = function (canvas) {
   this.dragging = false; // Keep track of when we are dragging
   // the current selected object. In the future we could turn this into an array for multiple selection
   this.selection = null;
+  this.selection = null;
   this.dragoffx = 0; // See mousedown and mousemove events for explanation
   this.dragoffy = 0;
 
@@ -187,6 +188,7 @@ var CanvasState = function (canvas) {
       for (i = 0;  i < pieces.length; i++) {
         //console.log('Trying piece: ' + i);
         if (pieces[i].includesPos(mouse)) {
+          //console.log(pieces[i].clickHandler(mouse));
           //console.log('On piece: ' + i );
           mySel = pieces[i];
           myState.dragoffx = mx - mySel.origLeftMargin;
@@ -195,6 +197,7 @@ var CanvasState = function (canvas) {
           //console.log(myState.dragoffy);
           myState.dragging = true;
           myState.selection = mySel;
+          myState.selectionOffset = pieces[i].clickHandler(mouse);
           //console.log('mySel: ' + mySel);
           //console.log('myState.selection: ' + myState.selection);
           myState.valid = false;
@@ -231,9 +234,16 @@ var CanvasState = function (canvas) {
         if (gridPos.row <= board.gridRows &&
           gridPos.col <= board.gridRows) {
           myState.selection.allowed();
-          myState.selection.leftMargin = board.leftMargin + (gridPos.col)*1.5*board.size;
-          myState.selection.topMargin = board.topMargin + (gridPos.row)*0.85*board.size;
-          myState.valid = false;
+          console.log(myState.selectionOffset);
+          if (!board.hexagons[0].dummy) {
+            myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
+            myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row)*0.85*board.size;
+            myState.valid = false;
+          } else {
+            myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
+            myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row-1)*0.85*board.size;
+            myState.valid = false;
+          }
         } else {
           myState.selection.leftMargin = myState.selection.origLeftMargin;
           myState.selection.topMargin = myState.selection.origTopMargin;
@@ -262,10 +272,10 @@ var CanvasState = function (canvas) {
   setInterval(function() { myState.draw(); }, myState.interval);
 }
 
-CanvasState.prototype.addShape = function(shape) {
+/*CanvasState.prototype.addShape = function(shape) {
   this.shapes.push(shape);
   this.valid = false;
-}
+}*/
 
 CanvasState.prototype.clear = function() {
   this.ctx.clearRect(0, 0, this.width, this.height);
@@ -788,12 +798,23 @@ Piece.prototype.includesPos = function (pos) {
 };
 
 Piece.prototype.clickHandler = function (pos) {
+  //console.log('Am I here');
+  console.log(this.hexagons[0].dummy);
   var col = Math.round((pos.x-this.boundingBox.minX-0.25*this.size)/(1.5*this.size)-0.5);
-  if (col % 2 === 0) {
-    var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+  if (!this.hexagons[0].dummy) {
+    if (col % 2 === 0) {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    }
   } else {
-    var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    if (col % 2 === 1) {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    }
   }
+  return {row: row, col: col};
   //console.log('col ' + col);
   //console.log('row ' + row);
   /*if (this.topMargin === this.origTopMargin) {
