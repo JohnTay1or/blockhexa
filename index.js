@@ -198,6 +198,8 @@ var CanvasState = function (canvas) {
           myState.dragging = true;
           myState.selection = mySel;
           myState.selectionOffset = pieces[i].clickHandler(mouse);
+          //console.log('this is the offset of the pieces hexagon')
+          //console.log(myState.selectionOffset);
           //console.log('mySel: ' + mySel);
           //console.log('myState.selection: ' + myState.selection);
           myState.valid = false;
@@ -228,29 +230,32 @@ var CanvasState = function (canvas) {
     //you can only release a piece when you are on the board.
       var mouse = myState.getMouse(e);
       if (board.includesPos(mouse)) {
-        console.log('On board');
+        //console.log('On board');
         var gridPos = board.clickHandler(mouse);
+        //console.log('this is the offset of the pieces hexagon')
+        //console.log(myState.selectionOffset);
+        //console.log('this is the offset of the boards hexagon')
         //console.log(gridPos);
         if (gridPos.row <= board.gridRows &&
           gridPos.col <= board.gridRows) {
-          myState.selection.allowed();
-          console.log(myState.selectionOffset);
-          if (!board.hexagons[0].dummy) {
+          console.log('Move allowed' + myState.selection.allowed(myState.selectionOffset, gridPos));
+          //console.log(myState.selectionOffset);
+          /*if (!board.hexagons[0].dummy) {*/
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
             myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row)*0.85*board.size;
             myState.valid = false;
-          } else {
+          /*} else {
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
             myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row-1)*0.85*board.size;
             myState.valid = false;
-          }
+          }*/
         } else {
           myState.selection.leftMargin = myState.selection.origLeftMargin;
           myState.selection.topMargin = myState.selection.origTopMargin;
           myState.valid = false;
         };
       } else {
-        console.log('Off board');
+        //console.log('Off board');
         myState.selection.leftMargin = myState.selection.origLeftMargin;
         myState.selection.topMargin = myState.selection.origTopMargin;
         myState.valid = false;
@@ -261,7 +266,7 @@ var CanvasState = function (canvas) {
   // double click for making new shapes
   canvas.addEventListener('dblclick', function(e) {
     var mouse = myState.getMouse(e);
-    myState.addShape(new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)'));
+    /*myState.addShape(new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)'));*/
   }, true);
 
   // **** Options! ****
@@ -687,10 +692,18 @@ HexGrid.prototype.includesPos = function (pos) {
 
 HexGrid.prototype.clickHandler = function (pos) {
   var col = Math.round((pos.x-this.boundingBox.minX-0.25*this.size)/(1.5*this.size)-0.5);
-  if (col % 2 === 0) {
-    var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+  if (!this.hexagons[0].dummy) {
+    if (col % 2 === 0) {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    }
   } else {
-    var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    if (col % 2 === 0) {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+    }
   }
   if (!this.completed) {
     this.hexagons[row*this.gridCols+col].used = !this.hexagons[row*this.gridCols+col].used;
@@ -762,15 +775,53 @@ Piece.prototype.draw = function () {
   })
 };
 
-Piece.prototype.allowed = function () {
+Piece.prototype.allowed = function (pieceOffset, boardOffset) {
+  //console.log(pieceOffset);
+  //console.log(boardOffset);
+  //console.log('Top left cell of the board: ' + (boardOffset.row - pieceOffset.row) + ' ' + (boardOffset.col - pieceOffset.col));
   var self = this;
-  this.hexagons.forEach(function (hex, i) {
-    if (hex.used) {
-      console.log('piece index: ' + i);
-        //console.log('board index: ' + gridPos.row*board.gridCols+gridPos.col);
-        //board.hexagons[gridPos.row*board.gridCols+gridPos.col].avaiable;
+  var topRow = boardOffset.row - pieceOffset.row;
+  var leftCol = boardOffset.col - pieceOffset.col;
+
+  function indexInRange(element, i , array) {
+    var row = parseInt(i/self.gridCols);
+    var col = i%self.gridCols;
+    if (element.used) {
+      if (topRow >= 0 && (topRow + self.gridRows) <= board.gridRows &&
+        leftCol >= 0 && (leftCol + self.gridCols) <= board.gridCols) {
+      //var boardIndex = (topRow+row)*board.gridCols+leftCol+col;
+      //console.log(boardIndex);
+      //console.log(board.hexagons.length-1);
+      //return boardIndex < board.hexagons.length;
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return true;
     }
-  })
+  };
+
+  function isAvailable(element, i , array) {
+    var row = parseInt(i/self.gridCols);
+    var col = i%self.gridCols;
+    if (element.used) {
+      boardIndex = (topRow+row)*board.gridCols+leftCol+col;
+      if (board.hexagons[boardIndex].available) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+  };
+
+  if (this.hexagons.every(indexInRange)) {
+    return this.hexagons.every(isAvailable)
+  } else {
+    return false;
+  };
 };
 
 /*Piece.prototype.drawBoundingBox = function () {
@@ -798,8 +849,9 @@ Piece.prototype.includesPos = function (pos) {
 };
 
 Piece.prototype.clickHandler = function (pos) {
+  //I am using zero indexing on rows and columns
   //console.log('Am I here');
-  console.log(this.hexagons[0].dummy);
+  //console.log(this.hexagons[0].dummy);
   var col = Math.round((pos.x-this.boundingBox.minX-0.25*this.size)/(1.5*this.size)-0.5);
   if (!this.hexagons[0].dummy) {
     if (col % 2 === 0) {
@@ -808,10 +860,10 @@ Piece.prototype.clickHandler = function (pos) {
       var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
     }
   } else {
-    if (col % 2 === 1) {
-      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
-    } else {
+    if (col % 2 === 0) {
       var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
     }
   }
   return {row: row, col: col};

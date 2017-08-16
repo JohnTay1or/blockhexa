@@ -162,10 +162,18 @@ HexGrid.prototype.includesPos = function (pos) {
 
 HexGrid.prototype.clickHandler = function (pos) {
   var col = Math.round((pos.x-this.boundingBox.minX-0.25*this.size)/(1.5*this.size)-0.5);
-  if (col % 2 === 0) {
-    var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+  if (!this.hexagons[0].dummy) {
+    if (col % 2 === 0) {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    }
   } else {
-    var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    if (col % 2 === 0) {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY-0.85*this.size)/(1.7*this.size)-0.5)+1;
+    } else {
+      var row = 2*Math.round((pos.y-this.boundingBox.minY)/(1.7*this.size)-0.5);
+    }
   }
   if (!this.completed) {
     this.hexagons[row*this.gridCols+col].used = !this.hexagons[row*this.gridCols+col].used;

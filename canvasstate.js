@@ -101,6 +101,8 @@ var CanvasState = function (canvas) {
           myState.dragging = true;
           myState.selection = mySel;
           myState.selectionOffset = pieces[i].clickHandler(mouse);
+          //console.log('this is the offset of the pieces hexagon')
+          //console.log(myState.selectionOffset);
           //console.log('mySel: ' + mySel);
           //console.log('myState.selection: ' + myState.selection);
           myState.valid = false;
@@ -131,29 +133,32 @@ var CanvasState = function (canvas) {
     //you can only release a piece when you are on the board.
       var mouse = myState.getMouse(e);
       if (board.includesPos(mouse)) {
-        console.log('On board');
+        //console.log('On board');
         var gridPos = board.clickHandler(mouse);
+        //console.log('this is the offset of the pieces hexagon')
+        //console.log(myState.selectionOffset);
+        //console.log('this is the offset of the boards hexagon')
         //console.log(gridPos);
         if (gridPos.row <= board.gridRows &&
           gridPos.col <= board.gridRows) {
-          myState.selection.allowed();
-          console.log(myState.selectionOffset);
-          if (!board.hexagons[0].dummy) {
+          console.log('Move allowed' + myState.selection.allowed(myState.selectionOffset, gridPos));
+          //console.log(myState.selectionOffset);
+          /*if (!board.hexagons[0].dummy) {*/
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
             myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row)*0.85*board.size;
             myState.valid = false;
-          } else {
+          /*} else {
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
             myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row-1)*0.85*board.size;
             myState.valid = false;
-          }
+          }*/
         } else {
           myState.selection.leftMargin = myState.selection.origLeftMargin;
           myState.selection.topMargin = myState.selection.origTopMargin;
           myState.valid = false;
         };
       } else {
-        console.log('Off board');
+        //console.log('Off board');
         myState.selection.leftMargin = myState.selection.origLeftMargin;
         myState.selection.topMargin = myState.selection.origTopMargin;
         myState.valid = false;
@@ -164,7 +169,7 @@ var CanvasState = function (canvas) {
   // double click for making new shapes
   canvas.addEventListener('dblclick', function(e) {
     var mouse = myState.getMouse(e);
-    myState.addShape(new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)'));
+    /*myState.addShape(new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)'));*/
   }, true);
 
   // **** Options! ****
