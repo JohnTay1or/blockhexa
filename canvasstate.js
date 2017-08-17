@@ -141,7 +141,7 @@ var CanvasState = function (canvas) {
         //console.log(gridPos);
         if (gridPos.row <= board.gridRows &&
           gridPos.col <= board.gridRows) {
-          console.log('Move allowed' + myState.selection.allowed(myState.selectionOffset, gridPos));
+          console.log('Move allowed ' + myState.selection.allowed(myState.selectionOffset, gridPos));
           //console.log(myState.selectionOffset);
           /*if (!board.hexagons[0].dummy) {*/
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
