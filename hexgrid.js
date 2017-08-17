@@ -62,12 +62,20 @@ HexGrid.prototype.init = function () {
   return initHex;
 };
 
+HexGrid.prototype.availableCnt = function () {
+  return this.hexagons.reduce((count, hex) => count + (hex.available === true), 0);
+}
+
 HexGrid.prototype.complete = function (done) {
   //console.log(done)
   // the objective of this function is to trim all the unnecessary cells from around the container
   if (!this.completed) {
     var self = this;
     this.minimize();
+
+    if (this.type === 'board') {
+      this.analysis = this.analyze();
+    }
 
     if (this.type === 'pieceGen') {
       var analysis = this.analyze();
@@ -93,6 +101,24 @@ HexGrid.prototype.complete = function (done) {
         colorPicker.hide();
       }*/
     };
+    if (board.completed && pieceGen.completed) {
+      if (board.analysis.count > pieces.reduce((count, piece) => count + piece.analysis.count, 0)) {
+        alert('Not enough hexagons in peices');
+        this.completed = false;
+        this.hexagons = this.init();
+        canvasState.valid = false;
+        canvasState.draw();
+      } else if (board.analysis.count < pieces.reduce((count, piece) => count + piece.analysis.count, 0)) {
+        alert('Too many hexagons in peices');
+        this.completed = false;
+        this.hexagons = this.init();
+        if (this.type === 'pieceGen') {
+          pieces.pop();
+        }
+        canvasState.valid = false;
+        canvasState.draw();
+      }
+    }
   };
 };
 

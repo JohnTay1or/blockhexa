@@ -89,8 +89,22 @@ Piece.prototype.allowed = function (pieceOffset, boardOffset) {
     }
   };
 
+  function setUnavailable(element, i , array) {
+    var row = parseInt(i/self.gridCols);
+    var col = i%self.gridCols;
+    if (element.used) {
+      boardIndex = (topRow+row)*board.gridCols+leftCol+col;
+      board.hexagons[boardIndex].available = false;
+    }
+  };
+
   if (this.hexagons.every(indexInRange)) {
-    return this.hexagons.every(isAvailable)
+    if (this.hexagons.every(isAvailable)) {
+      this.hexagons.forEach(setUnavailable);
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   };

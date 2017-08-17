@@ -140,13 +140,17 @@ var CanvasState = function (canvas) {
         //console.log('this is the offset of the boards hexagon')
         //console.log(gridPos);
         if (gridPos.row <= board.gridRows &&
-          gridPos.col <= board.gridRows) {
-          console.log('Move allowed ' + myState.selection.allowed(myState.selectionOffset, gridPos));
+          gridPos.col <= board.gridRows &&
+            myState.selection.allowed(myState.selectionOffset, gridPos)) {
+          //console.log('Move allowed ' + myState.selection.allowed(myState.selectionOffset, gridPos));
           //console.log(myState.selectionOffset);
           /*if (!board.hexagons[0].dummy) {*/
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
             myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row)*0.85*board.size;
             myState.valid = false;
+            if (board.availableCnt() === 0) {
+              alert('The board is solved');
+            };
           /*} else {
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
             myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row-1)*0.85*board.size;

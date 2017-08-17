@@ -237,13 +237,17 @@ var CanvasState = function (canvas) {
         //console.log('this is the offset of the boards hexagon')
         //console.log(gridPos);
         if (gridPos.row <= board.gridRows &&
-          gridPos.col <= board.gridRows) {
-          console.log('Move allowed' + myState.selection.allowed(myState.selectionOffset, gridPos));
+          gridPos.col <= board.gridRows &&
+            myState.selection.allowed(myState.selectionOffset, gridPos)) {
+          //console.log('Move allowed ' + myState.selection.allowed(myState.selectionOffset, gridPos));
           //console.log(myState.selectionOffset);
           /*if (!board.hexagons[0].dummy) {*/
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
             myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row)*0.85*board.size;
             myState.valid = false;
+            if (board.availableCnt() === 0) {
+              alert('The board is solved');
+            };
           /*} else {
             myState.selection.leftMargin = board.leftMargin + (gridPos.col-myState.selectionOffset.col)*1.5*board.size;
             myState.selection.topMargin = board.topMargin + (gridPos.row-myState.selectionOffset.row-1)*0.85*board.size;
@@ -592,12 +596,20 @@ HexGrid.prototype.init = function () {
   return initHex;
 };
 
+HexGrid.prototype.availableCnt = function () {
+  return this.hexagons.reduce((count, hex) => count + (hex.available === true), 0);
+}
+
 HexGrid.prototype.complete = function (done) {
   //console.log(done)
   // the objective of this function is to trim all the unnecessary cells from around the container
   if (!this.completed) {
     var self = this;
     this.minimize();
+
+    if (this.type === 'board') {
+      this.analysis = this.analyze();
+    }
 
     if (this.type === 'pieceGen') {
       var analysis = this.analyze();
@@ -623,6 +635,24 @@ HexGrid.prototype.complete = function (done) {
         colorPicker.hide();
       }*/
     };
+    if (board.completed && pieceGen.completed) {
+      if (board.analysis.count > pieces.reduce((count, piece) => count + piece.analysis.count, 0)) {
+        alert('Not enough hexagons in peices');
+        this.completed = false;
+        this.hexagons = this.init();
+        canvasState.valid = false;
+        canvasState.draw();
+      } else if (board.analysis.count < pieces.reduce((count, piece) => count + piece.analysis.count, 0)) {
+        alert('Too many hexagons in peices');
+        this.completed = false;
+        this.hexagons = this.init();
+        if (this.type === 'pieceGen') {
+          pieces.pop();
+        }
+        canvasState.valid = false;
+        canvasState.draw();
+      }
+    }
   };
 };
 
@@ -817,8 +847,22 @@ Piece.prototype.allowed = function (pieceOffset, boardOffset) {
     }
   };
 
+  function setUnavailable(element, i , array) {
+    var row = parseInt(i/self.gridCols);
+    var col = i%self.gridCols;
+    if (element.used) {
+      boardIndex = (topRow+row)*board.gridCols+leftCol+col;
+      board.hexagons[boardIndex].available = false;
+    }
+  };
+
   if (this.hexagons.every(indexInRange)) {
-    return this.hexagons.every(isAvailable)
+    if (this.hexagons.every(isAvailable)) {
+      this.hexagons.forEach(setUnavailable);
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   };
