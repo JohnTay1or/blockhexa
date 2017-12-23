@@ -88,12 +88,14 @@ var CanvasState = function (canvas) {
       var my = mouse.y;
       //console.log('mx: ' + mx + ' my: ' + my);
       var mySel;
+      //var mySelIndex;
       for (i = 0;  i < pieces.length; i++) {
         //console.log('Trying piece: ' + i);
         if (pieces[i].includesPos(mouse)) {
           //console.log(pieces[i].clickHandler(mouse));
           //console.log('On piece: ' + i );
           mySel = pieces[i];
+          //mySelIndex = i;
           myState.dragoffx = mx - mySel.origLeftMargin;
           //console.log(myState.dragoffx);
           myState.dragoffy = my - mySel.origTopMargin;
@@ -101,6 +103,9 @@ var CanvasState = function (canvas) {
           myState.dragging = true;
           myState.selection = mySel;
           myState.selectionOffset = pieces[i].clickHandler(mouse);
+          myState.selectedPiece = i;
+          //need to clear the board of this piece if present
+          board.clearPiece(i);
           //console.log('this is the offset of the pieces hexagon')
           //console.log(myState.selectionOffset);
           //console.log('mySel: ' + mySel);
@@ -131,6 +136,7 @@ var CanvasState = function (canvas) {
   canvas.addEventListener('mouseup', function(e) {
     if (board.completed && pieceGen.completed) {
     //you can only release a piece when you are on the board.
+      //console.log('dragged piece: ' + myState.selectedPiece);
       var mouse = myState.getMouse(e);
       if (board.includesPos(mouse)) {
         //console.log('On board');
@@ -141,7 +147,7 @@ var CanvasState = function (canvas) {
         //console.log(gridPos);
         if (gridPos.row <= board.gridRows &&
           gridPos.col <= board.gridRows &&
-            myState.selection.allowed(myState.selectionOffset, gridPos)) {
+            myState.selection.allowed(myState.selectionOffset, gridPos, myState.selectedPiece)) {
           //console.log('Move allowed ' + myState.selection.allowed(myState.selectionOffset, gridPos));
           //console.log(myState.selectionOffset);
           /*if (!board.hexagons[0].dummy) {*/

@@ -47,7 +47,7 @@ Piece.prototype.draw = function () {
   })
 };
 
-Piece.prototype.allowed = function (pieceOffset, boardOffset) {
+Piece.prototype.allowed = function (pieceOffset, boardOffset, pieceIndex) {
   //console.log(pieceOffset);
   //console.log(boardOffset);
   //console.log('Top left cell of the board: ' + (boardOffset.row - pieceOffset.row) + ' ' + (boardOffset.col - pieceOffset.col));
@@ -95,6 +95,8 @@ Piece.prototype.allowed = function (pieceOffset, boardOffset) {
     if (element.used) {
       boardIndex = (topRow+row)*board.gridCols+leftCol+col;
       board.hexagons[boardIndex].available = false;
+      board.hexagons[boardIndex].pieceIndex = pieceIndex;
+      //console.log(pieceIndex);
     }
   };
 

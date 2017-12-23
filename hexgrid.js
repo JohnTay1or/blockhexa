@@ -219,4 +219,16 @@ HexGrid.prototype.clickHandler = function (pos) {
   return {row: row, col: col};
 }
 
+HexGrid.prototype.clearPiece = function (pieceIndex) {
+  //console.log('Am I called');
+  this.hexagons.forEach(function(hex) {
+    //console.log(stats.minRow);
+    //console.log(hex.row);
+    if (hex.pieceIndex === pieceIndex) {
+      hex.pieceIndex = null;
+      hex.available = true;
+    }
+  });
+};
+
 module.exports = HexGrid;
