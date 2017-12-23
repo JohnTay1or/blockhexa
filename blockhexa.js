@@ -2,6 +2,7 @@ var Hexagon = require('./hexagon.js')
 var HexGrid = require('./hexgrid.js')
 var ColorPicker = require('./colorpicker.js')
 var CanvasState = require('./canvasstate.js')
+var Solver = require('./solver.js')
 
 var canvas = document.getElementById("myCanvas");
 var context = canvas.getContext("2d");
@@ -36,6 +37,9 @@ board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topM
 pieceGen = new HexGrid(context, 'pieceGen', gridRows, gridCols, size, 2*leftMargin + 1.5*gridCols*size, topMargin);
 
 colorPicker = new ColorPicker(context, 3*leftMargin + 2*1.5*gridCols*size, topMargin);
+
+solver = new Solver();
+
 pieces = [];
 /*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
 

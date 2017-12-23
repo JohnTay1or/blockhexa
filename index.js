@@ -3,6 +3,7 @@ var Hexagon = require('./hexagon.js')
 var HexGrid = require('./hexgrid.js')
 var ColorPicker = require('./colorpicker.js')
 var CanvasState = require('./canvasstate.js')
+var Solver = require('./solver.js')
 
 var canvas = document.getElementById("myCanvas");
 var context = canvas.getContext("2d");
@@ -37,6 +38,9 @@ board = new HexGrid(context, 'board', gridRows, gridCols, size, leftMargin, topM
 pieceGen = new HexGrid(context, 'pieceGen', gridRows, gridCols, size, 2*leftMargin + 1.5*gridCols*size, topMargin);
 
 colorPicker = new ColorPicker(context, 3*leftMargin + 2*1.5*gridCols*size, topMargin);
+
+solver = new Solver();
+
 pieces = [];
 /*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
 
@@ -94,7 +98,7 @@ function getMousePosOnCanvas(canvas, event) {
   };
 };
 
-},{"./canvasstate.js":2,"./colorpicker.js":3,"./hexagon.js":4,"./hexgrid.js":5}],2:[function(require,module,exports){
+},{"./canvasstate.js":2,"./colorpicker.js":3,"./hexagon.js":4,"./hexgrid.js":5,"./solver.js":7}],2:[function(require,module,exports){
 // By Simon Sarris
 // www.simonsarris.com
 // sarris@acm.org
@@ -961,4 +965,17 @@ Piece.prototype.clickHandler = function (pos) {
 
 module.exports = Piece;
 
-},{"./hexagon.js":4}]},{},[1]);
+},{"./hexagon.js":4}],7:[function(require,module,exports){
+//var Hexagon = require('./hexagon.js')
+
+var Solver = function () {
+  this.solution = null;
+};
+
+Solver.prototype.solver = function () {
+  console.log('In solver');
+};
+
+module.exports = Solver;
+
+},{}]},{},[1]);
