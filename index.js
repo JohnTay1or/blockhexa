@@ -783,6 +783,7 @@ var Hexagon = require('./hexagon.js')
 var Piece = function (context, hexagons, analysis, size) {
   //console.log(board);
   this.context = context;
+  this.available = true;
   this.topMargin = board.topMargin + board.boundingBox.maxY;
   if (pieces.length === 0) {
     this.leftMargin = board.leftMargin;
@@ -973,8 +974,33 @@ var Solver = function () {
 };
 
 Solver.prototype.solver = function () {
-  console.log('In solver');
+  console.log(pieces);
+  this.insertPiece();
+  //console.log('In solver');
 };
+
+Solver.prototype.insertPiece = function () {
+  if (pieces.some(this.isAvailable)) {
+    console.log(this.getIndexOfAvailable());
+    pieces[this.getIndexOfAvailable()].available = false;
+    this.insertPiece();
+  } else {
+    console.log('Done');
+  }
+};
+
+Solver.prototype.isAvailable = function(e, i, a) {
+  return e.available === true;
+}
+
+Solver.prototype.getIndexOfAvailable = function() {
+  for (i=0; i < pieces.length; i++) {
+    if (pieces[i].available === true) {
+      return i;
+    }
+  }
+
+}
 
 module.exports = Solver;
 

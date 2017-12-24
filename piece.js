@@ -3,6 +3,7 @@ var Hexagon = require('./hexagon.js')
 var Piece = function (context, hexagons, analysis, size) {
   //console.log(board);
   this.context = context;
+  this.available = true;
   this.topMargin = board.topMargin + board.boundingBox.maxY;
   if (pieces.length === 0) {
     this.leftMargin = board.leftMargin;
