@@ -7,6 +7,6 @@ browserify blockhexa.js > index.js
 
 Another handy command
 
-grep -rnw '/path/to/somewhere/' -e 'pattern'
+grep -rnw . -e 'pattern'
 
 There is a related GIT respository

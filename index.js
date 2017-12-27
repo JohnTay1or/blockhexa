@@ -14,8 +14,8 @@ var ctx2 = c2.getContext("2d");
 var c3 = document.getElementById("pieces");
 ctx3 = c3.getContext("2d");*/
 
-var gridRows = 14;
-var gridCols = 5;
+var gridRows = 15;
+var gridCols = 10;
 var size = 20;
 var leftMargin = 40;
 var topMargin = 40;
@@ -39,7 +39,7 @@ pieceGen = new HexGrid(context, 'pieceGen', gridRows, gridCols, size, 2*leftMarg
 
 colorPicker = new ColorPicker(context, 3*leftMargin + 2*1.5*gridCols*size, topMargin);
 
-solver = new Solver();
+solver = new Solver(size, leftMargin, topMargin);
 
 pieces = [];
 /*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);
@@ -773,6 +773,8 @@ HexGrid.prototype.clearPiece = function (pieceIndex) {
       hex.available = true;
     }
   });
+  pieces[pieceIndex].topMargin = pieces[pieceIndex].origTopMargin;
+  pieces[pieceIndex].leftMargin = pieces[pieceIndex].origLeftMargin;
 };
 
 module.exports = HexGrid;
@@ -969,23 +971,75 @@ module.exports = Piece;
 },{"./hexagon.js":4}],7:[function(require,module,exports){
 //var Hexagon = require('./hexagon.js')
 
-var Solver = function () {
+var Solver = function (size, leftMargin, topMargin) {
+  //console.log(size);
+  this.size = size;
+  this.leftMargin = leftMargin;
+  this.topMargin = topMargin;
+  //console.log(this.topMargin);
   this.solution = null;
 };
 
 Solver.prototype.solver = function () {
-  console.log(pieces);
-  this.insertPiece();
+  console.log(this.insertPiece());
   //console.log('In solver');
 };
 
 Solver.prototype.insertPiece = function () {
-  if (pieces.some(this.isAvailable)) {
-    console.log(this.getIndexOfAvailable());
-    pieces[this.getIndexOfAvailable()].available = false;
-    this.insertPiece();
+  console.log(board.availableCnt());
+  if (board.availableCnt() === 0) {
+    return('Done');
   } else {
-    console.log('Done');
+//  if (pieces.some(this.isAvailable)) {
+    console.log('Dealing with piece: ' + this.getIndexOfAvailable());
+    //console.log(board);
+    //consider all available spaces on the board
+    for (var i = 0; i < board.hexagons.length; i++) {
+      //if (board.hexagons[i].available) {
+        console.log('Consider board poistion' + i);
+        //console.log(board.hexagons[i].row)
+        //board.hexagons[i].available = false;
+        var thisPiece = this.getIndexOfAvailable();
+        if (pieces[thisPiece].allowed({row: pieces[thisPiece].hexagons[0].row, col: pieces[thisPiece].hexagons[0].col},
+                                      {row: board.hexagons[i].row, col: board.hexagons[i].col},
+                                      thisPiece)) {
+          //Move piece
+          //console.log(this.topMargin);
+          pieces[thisPiece].topMargin = this.topMargin + board.hexagons[i].row * 0.85 * this.size;
+          pieces[thisPiece].leftMargin = this.leftMargin + board.hexagons[i].col * 1.5 * this.size;
+          console.log('piece is allowed');
+          pieces.forEach(function (p, i) {
+            //console.log('Drawing piece ' + i);
+            p.draw();
+          });
+          //pieceGen.draw();
+          pieces[thisPiece].available = false;
+          //return this.insertPiece();
+          if (this.insertPiece() === 'Done') {
+            return 'Done';
+          };
+          pieces[thisPiece].available = true;
+          board.clearPiece(thisPiece);
+          board.draw();
+          pieces.forEach(function (p, i) {
+            //console.log('Drawing piece ' + i);
+            p.draw();
+          });
+        } else {
+          //console.log('piece is not allowed');
+        }
+      //}
+    }
+    //pieces[this.getIndexOfAvailable()].available = false;
+    //this.insertPiece();
+//  } else {
+    //console.log(board.availableCnt)
+    //if (board.availableCnt() === 0) {
+    //  return('Done');
+    //}// else {
+    //  return('Not done')
+    //}
+//  }
   }
 };
 
@@ -994,12 +1048,21 @@ Solver.prototype.isAvailable = function(e, i, a) {
 }
 
 Solver.prototype.getIndexOfAvailable = function() {
-  for (i=0; i < pieces.length; i++) {
+  for (var i = 0; i < pieces.length; i++) {
     if (pieces[i].available === true) {
       return i;
     }
   }
 
+}
+
+Solver.prototype.listAvailableHexagons = function() {
+  board.hexagons.forEach(function(hex) {
+    if (hex.available) {
+      console.log({row: hex.row, col: hex.col});
+    }
+  });
+  return null;
 }
 
 module.exports = Solver;

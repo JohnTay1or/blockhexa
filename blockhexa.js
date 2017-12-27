@@ -13,8 +13,8 @@ var ctx2 = c2.getContext("2d");
 var c3 = document.getElementById("pieces");
 ctx3 = c3.getContext("2d");*/
 
-var gridRows = 14;
-var gridCols = 5;
+var gridRows = 15;
+var gridCols = 10;
 var size = 20;
 var leftMargin = 40;
 var topMargin = 40;
@@ -38,7 +38,7 @@ pieceGen = new HexGrid(context, 'pieceGen', gridRows, gridCols, size, 2*leftMarg
 
 colorPicker = new ColorPicker(context, 3*leftMargin + 2*1.5*gridCols*size, topMargin);
 
-solver = new Solver();
+solver = new Solver(size, leftMargin, topMargin);
 
 pieces = [];
 /*pieceGenerator = new Board(ctx2, 'piece', gridSize, size, leftMargin, topMargin);

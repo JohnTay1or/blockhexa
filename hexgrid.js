@@ -229,6 +229,8 @@ HexGrid.prototype.clearPiece = function (pieceIndex) {
       hex.available = true;
     }
   });
+  pieces[pieceIndex].topMargin = pieces[pieceIndex].origTopMargin;
+  pieces[pieceIndex].leftMargin = pieces[pieceIndex].origLeftMargin;
 };
 
 module.exports = HexGrid;
