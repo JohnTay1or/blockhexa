@@ -19,17 +19,17 @@ Solver.prototype.solver = function () {
 };
 
 Solver.prototype.insertPiece = function () {
-  console.log(board.availableCnt());
+  //console.log(board.availableCnt());
   if (board.availableCnt() === 0) {
     return('Done');
   } else {
 //  if (pieces.some(this.isAvailable)) {
-    console.log('Dealing with piece: ' + this.getIndexOfAvailable());
+    //console.log('Dealing with piece: ' + this.getIndexOfAvailable());
     //console.log(board);
     //consider all available spaces on the board
     for (var i = 0; i < board.hexagons.length; i++) {
       //if (board.hexagons[i].available) {
-        console.log('Consider board poistion' + i);
+        //console.log('Consider board poistion' + i);
         //console.log(board.hexagons[i].row)
         //board.hexagons[i].available = false;
         var thisPiece = this.getIndexOfAvailable();
@@ -40,7 +40,7 @@ Solver.prototype.insertPiece = function () {
           //console.log(this.topMargin);
           pieces[thisPiece].topMargin = this.topMargin + board.hexagons[i].row * 0.85 * this.size;
           pieces[thisPiece].leftMargin = this.leftMargin + board.hexagons[i].col * 1.5 * this.size;
-          console.log('piece is allowed');
+          //console.log('piece is allowed');
           pieces.forEach(function (p, i) {
             //console.log('Drawing piece ' + i);
             p.draw();
