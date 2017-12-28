@@ -14,7 +14,7 @@ var c3 = document.getElementById("pieces");
 ctx3 = c3.getContext("2d");*/
 
 var gridRows = 15;
-var gridCols = 10;
+var gridCols = 16;
 var size = 20;
 var leftMargin = 40;
 var topMargin = 40;

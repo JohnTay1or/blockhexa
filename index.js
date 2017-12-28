@@ -15,7 +15,7 @@ var c3 = document.getElementById("pieces");
 ctx3 = c3.getContext("2d");*/
 
 var gridRows = 15;
-var gridCols = 10;
+var gridCols = 16;
 var size = 20;
 var leftMargin = 40;
 var topMargin = 40;
@@ -400,11 +400,11 @@ var ColorPicker = function (context, leftMargin, topMargin) {
     'rgba(184,247,95,1)', //green
     'rgba(245,136,54,1)', //orange
     'rgba(92,213,246,1)', //blue
-    //orange
     'rgba(38,121,244,1)', //dark blue 2679F4
     'rgba(176,98,73,1)', //brown b06249
     'rgba(81,241,184,1)', //lightgreen 51f1b8
-    'rgba(124,81,246,1)', //purple 7c51f6
+    'rgba(251,193,61,1)', //gold fbc13d
+    'rgba(247,76,136,1)', //red f74c88
 
   ];
   this.selectedColor = this.colors[0];
@@ -987,7 +987,11 @@ var Solver = function (size, leftMargin, topMargin) {
 };
 
 Solver.prototype.solver = function () {
-  console.log(this.insertPiece());
+  //this.sortedPieces = pieces.slice().sort(compare);
+  pieces.sort(compare);
+  //console.log(sortedPieces);
+  //console.log(this.insertPiece());
+  this.insertPiece()
   //console.log('In solver');
 };
 
@@ -1059,7 +1063,20 @@ Solver.prototype.getIndexOfAvailable = function() {
       return i;
     }
   }
+}
 
+function compare(a, b) {
+  // Use toUpperCase() to ignore character casing
+  const sizeA = a.hexagons.length;
+  const sizeB = b.hexagons.length;
+
+  let comparison = 0;
+  if (sizeA > sizeB) {
+    comparison = 1;
+  } else if (sizeA < sizeB) {
+    comparison = -1;
+  }
+  return comparison*-1;
 }
 
 Solver.prototype.listAvailableHexagons = function() {

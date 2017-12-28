@@ -10,7 +10,11 @@ var Solver = function (size, leftMargin, topMargin) {
 };
 
 Solver.prototype.solver = function () {
-  console.log(this.insertPiece());
+  //this.sortedPieces = pieces.slice().sort(compare);
+  pieces.sort(compare);
+  //console.log(sortedPieces);
+  //console.log(this.insertPiece());
+  this.insertPiece()
   //console.log('In solver');
 };
 
@@ -82,7 +86,20 @@ Solver.prototype.getIndexOfAvailable = function() {
       return i;
     }
   }
+}
 
+function compare(a, b) {
+  // Use toUpperCase() to ignore character casing
+  const sizeA = a.hexagons.length;
+  const sizeB = b.hexagons.length;
+
+  let comparison = 0;
+  if (sizeA > sizeB) {
+    comparison = 1;
+  } else if (sizeA < sizeB) {
+    comparison = -1;
+  }
+  return comparison*-1;
 }
 
 Solver.prototype.listAvailableHexagons = function() {
