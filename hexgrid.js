@@ -84,6 +84,9 @@ HexGrid.prototype.complete = function (done) {
         this.hexagons = this.init();
         this.gridRows = this.origGridRows;
         this.gridCols = this.origGridCols;
+        //console.log('Here');
+        canvasState.valid = false;
+        canvasState.draw();
         this.draw();
       }
     }

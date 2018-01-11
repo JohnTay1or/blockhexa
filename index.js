@@ -308,6 +308,7 @@ CanvasState.prototype.draw = function() {
     //console.log('IncanvasStateDraw');
     var ctx = this.ctx;
     var shapes = this.shapes;
+    //console.log('In canvasstate draw');
     this.clear();
 
     // ** Add stuff you want drawn in the background all the time here **
@@ -634,6 +635,9 @@ HexGrid.prototype.complete = function (done) {
         this.hexagons = this.init();
         this.gridRows = this.origGridRows;
         this.gridCols = this.origGridCols;
+        //console.log('Here');
+        canvasState.valid = false;
+        canvasState.draw();
         this.draw();
       }
     }
